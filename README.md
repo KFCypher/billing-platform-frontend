@@ -1,3 +1,7 @@
+# Billing Platform Frontend
+
+A comprehensive Next.js 14 dashboard for managing subscription billing, built with TypeScript, Tailwind CSS, and shadcn/ui.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
