@@ -82,8 +82,8 @@ apiClient.interceptors.response.use(
 
 // Auth methods
 export const authApi = {
-  login: (email: string, password: string) =>
-    apiClient.post('/auth/tenants/login/', { email, password }),
+  login: (data: { email: string; password: string }) =>
+    apiClient.post('/auth/tenants/login/', data),
   
   register: (data: {
     company_name: string;

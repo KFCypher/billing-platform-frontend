@@ -37,7 +37,11 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     try {
+      console.log('Login attempt:', { email: data.email });
+      
       const response = await authApi.login(data);
+      console.log('Login response:', response.data);
+      
       const { tokens, user, tenant } = response.data;
 
       // Store tokens and user data
@@ -49,7 +53,34 @@ export default function LoginPage() {
       toast.success('Welcome back!');
       router.push('/dashboard');
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Login failed';
+      console.error('Login error:', error);
+      console.error('Error response:', error.response?.data);
+      
+      let errorMessage = 'Login failed';
+      
+      if (error.response?.data) {
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else if (error.response.data.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response.data.detail) {
+          errorMessage = error.response.data.detail;
+        } else {
+          const fields = Object.keys(error.response.data);
+          if (fields.length > 0) {
+            const firstField = fields[0];
+            const fieldError = error.response.data[firstField];
+            errorMessage = Array.isArray(fieldError) 
+              ? `${firstField}: ${fieldError[0]}` 
+              : `${firstField}: ${fieldError}`;
+          }
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);

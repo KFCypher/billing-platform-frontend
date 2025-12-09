@@ -45,6 +45,13 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterForm) => {
     setIsLoading(true);
     try {
+      console.log('Registration data:', {
+        company_name: data.company_name,
+        email: data.email,
+        first_name: data.first_name,
+        last_name: data.last_name,
+      });
+
       const response = await authApi.register({
         company_name: data.company_name,
         email: data.email,
@@ -52,6 +59,8 @@ export default function RegisterPage() {
         first_name: data.first_name,
         last_name: data.last_name,
       });
+
+      console.log('Registration response:', response.data);
 
       const { tokens, api_keys, user, tenant } = response.data;
 
@@ -70,10 +79,39 @@ export default function RegisterPage() {
       
       // Redirect after showing keys
       setTimeout(() => {
-        router.push('/onboarding');
+        router.push('/dashboard');
       }, 5000);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Registration failed';
+      console.error('Registration error:', error);
+      console.error('Error response:', error.response?.data);
+      
+      // Handle different error formats from Django
+      let errorMessage = 'Registration failed';
+      
+      if (error.response?.data) {
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else if (error.response.data.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response.data.detail) {
+          errorMessage = error.response.data.detail;
+        } else {
+          // Handle field-specific errors
+          const fields = Object.keys(error.response.data);
+          if (fields.length > 0) {
+            const firstField = fields[0];
+            const fieldError = error.response.data[firstField];
+            errorMessage = Array.isArray(fieldError) 
+              ? `${firstField}: ${fieldError[0]}` 
+              : `${firstField}: ${fieldError}`;
+          }
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
