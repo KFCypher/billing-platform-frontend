@@ -75,11 +75,11 @@ export default function RegisterPage() {
         setApiKeys(api_keys);
       }
 
-      toast.success('Account created successfully!');
+      toast.success('Account created successfully! Let\'s get you started.');
       
-      // Redirect after showing keys
+      // Redirect to onboarding after showing keys
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/onboarding');
       }, 5000);
     } catch (error) {
       console.error('Registration error:', error);

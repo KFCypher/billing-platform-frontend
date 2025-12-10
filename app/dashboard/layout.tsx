@@ -16,13 +16,15 @@ import {
   Code, 
   LogOut,
   Menu,
-  X
+  X,
+  Rocket
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Getting Started', href: '/onboarding', icon: Rocket },
   { name: 'Customers', href: '/dashboard/customers', icon: Users },
   { name: 'Plans', href: '/dashboard/plans', icon: Package },
   { name: 'Subscriptions', href: '/dashboard/subscriptions', icon: CreditCard },
