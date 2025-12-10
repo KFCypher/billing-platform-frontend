@@ -13,6 +13,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useAppDispatch } from '@/lib/store/hooks';
+import { setCredentials } from '@/lib/store/slices/authSlice';
+import { setTenant } from '@/lib/store/slices/tenantSlice';
 
 const registerSchema = z.object({
   company_name: z.string().min(2, 'Company name must be at least 2 characters'),
@@ -30,6 +33,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [apiKeys, setApiKeys] = useState<{ live_key: string; test_key: string } | null>(null);
@@ -64,11 +68,13 @@ export default function RegisterPage() {
 
       const { tokens, api_keys, user, tenant } = response.data;
 
-      // Store tokens
-      localStorage.setItem('access_token', tokens.access);
-      localStorage.setItem('refresh_token', tokens.refresh);
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('tenant', JSON.stringify(tenant));
+      // Store in Redux (which also persists to localStorage)
+      dispatch(setCredentials({
+        user,
+        accessToken: tokens.access,
+        refreshToken: tokens.refresh,
+      }));
+      dispatch(setTenant(tenant));
 
       // Show API keys (one-time display)
       if (api_keys) {

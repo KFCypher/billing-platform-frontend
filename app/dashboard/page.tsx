@@ -1,27 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { MetricCard } from '@/components/dashboard/metric-card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DollarSign, Users, TrendingDown, AlertCircle, Plus, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useAppSelector } from '@/lib/store/hooks';
 
 
 export default function DashboardPage() {
-  const [user] = useState<{ first_name?: string; email?: string } | null>(() => {
-    if (typeof window === 'undefined') return null;
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      try {
-        return JSON.parse(userData);
-      } catch (e) {
-        console.error('Failed to parse user data:', e);
-        return null;
-      }
-    }
-    return null;
-  });
+  const { user } = useAppSelector((state) => state.auth);
 
   return (
     <div className="space-y-8">

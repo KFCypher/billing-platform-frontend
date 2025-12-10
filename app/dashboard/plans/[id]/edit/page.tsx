@@ -21,14 +21,9 @@ import Link from 'next/link';
 const planSchema = z.object({
   name: z.string().min(1, 'Plan name is required'),
   description: z.string().optional(),
-  price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-    message: 'Price must be a valid positive number',
-  }),
-  billing_period: z.enum(['monthly', 'yearly']),
   trial_period_days: z.string().optional(),
   features: z.array(z.object({ value: z.string() })).optional(),
   is_active: z.boolean().optional(),
-  is_featured: z.boolean().optional(),
 });
 
 type PlanFormData = z.infer<typeof planSchema>;
@@ -77,10 +72,9 @@ export default function EditPlanPage() {
         description: plan.description || '',
         price: plan.price.toString(),
         billing_period: plan.billing_period,
-        trial_period_days: plan.trial_period_days?.toString() || '',
-        features: plan.features?.map((f: string) => ({ value: f })) || [],
+        trial_period_days: plan.trial_days?.toString() || plan.trial_period_days?.toString() || '',
+        features: plan.features_json?.map((f: string) => ({ value: f })) || plan.features?.map((f: string) => ({ value: f })) || [],
         is_active: plan.is_active,
-        is_featured: plan.is_featured,
       });
     }
   }, [plan, reset]);
@@ -91,12 +85,9 @@ export default function EditPlanPage() {
       const payload = {
         name: data.name,
         description: data.description,
-        price: Number(data.price),
-        billing_period: data.billing_period,
-        trial_period_days: data.trial_period_days ? Number(data.trial_period_days) : 0,
-        features: data.features?.map(f => f.value).filter(Boolean) || [],
-        is_active: data.is_active,
-        is_featured: data.is_featured,
+        trial_days: data.trial_period_days ? Number(data.trial_period_days) : 0,
+        features_json: data.features?.map((f: { value: string }) => f.value).filter(Boolean) || [],
+        is_visible: data.is_active,
       };
 
       await planApi.update(planId, payload);
@@ -183,39 +174,17 @@ export default function EditPlanPage() {
 
             <Separator />
 
-            {/* Pricing */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price">Price (USD) *</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  placeholder="29.99"
-                  {...register('price')}
-                  disabled={isLoading}
-                />
-                {errors.price && (
-                  <p className="text-sm text-red-500">{errors.price.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="billing_period">Billing Period *</Label>
-                <Select
-                  value={watch('billing_period')}
-                  onValueChange={(value) => setValue('billing_period', value as 'monthly' | 'yearly')}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="yearly">Yearly</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Pricing Info (Read-only) */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+              <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
+                💡 Pricing Information
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Price: <span className="font-semibold">{plan?.price_display || `$${(plan?.price_cents || 0) / 100}`}</span> / {plan?.billing_interval}
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                Note: Price and billing period cannot be changed. Create a new plan or duplicate this one for different pricing.
+              </p>
             </div>
 
             {/* Trial Period */}

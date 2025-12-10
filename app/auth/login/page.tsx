@@ -13,6 +13,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useAppDispatch } from '@/lib/store/hooks';
+import { setCredentials } from '@/lib/store/slices/authSlice';
+import { setTenant } from '@/lib/store/slices/tenantSlice';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -23,6 +26,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -44,11 +48,13 @@ export default function LoginPage() {
       
       const { tokens, user, tenant } = response.data;
 
-      // Store tokens and user data
-      localStorage.setItem('access_token', tokens.access);
-      localStorage.setItem('refresh_token', tokens.refresh);
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('tenant', JSON.stringify(tenant));
+      // Store in Redux (which also persists to localStorage)
+      dispatch(setCredentials({
+        user,
+        accessToken: tokens.access,
+        refreshToken: tokens.refresh,
+      }));
+      dispatch(setTenant(tenant));
 
       toast.success('Welcome back!');
       router.push('/dashboard');

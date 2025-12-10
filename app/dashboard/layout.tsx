@@ -21,6 +21,9 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useAppDispatch } from '@/lib/store/hooks';
+import { logout } from '@/lib/store/slices/authSlice';
+import { clearTenant } from '@/lib/store/slices/tenantSlice';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -42,10 +45,13 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.clear();
+    // Clear Redux state (which also clears localStorage)
+    dispatch(logout());
+    dispatch(clearTenant());
     toast.success('Logged out successfully');
     router.push('/auth/login');
   };

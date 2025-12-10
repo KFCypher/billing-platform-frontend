@@ -152,10 +152,11 @@ export const planApi = {
   update: (id: number, data: {
     name?: string;
     description?: string;
+    trial_days?: number;
     features_json?: string[];
     metadata_json?: Record<string, unknown>;
+    is_active?: boolean;
     is_visible?: boolean;
-    trial_days?: number;
   }) => apiClient.patch(`/auth/plans/${id}/`, data),
   
   deactivate: (id: number) => apiClient.delete(`/auth/plans/${id}/`),
