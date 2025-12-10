@@ -19,7 +19,11 @@ export default function PlansPage() {
     queryFn: () => planApi.list(),
   });
 
-  const plans = plansResponse?.data || [];
+  const plans = Array.isArray(plansResponse?.data) 
+    ? plansResponse.data 
+    : Array.isArray(plansResponse?.data?.results) 
+    ? plansResponse.data.results 
+    : [];
 
   const handleDuplicate = async (planId: number, planName: string) => {
     try {
