@@ -6,14 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import {
   ArrowLeft, 
   Mail, 
   Calendar, 
   CreditCard, 
   Package,
   MoreVertical,
-  DollarSign,
   CheckCircle2,
   XCircle,
   Clock,
@@ -126,7 +125,7 @@ export default function CustomerDetailPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; icon: any }> = {
+    const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ComponentType<{ className?: string }> }> = {
       active: { variant: 'default', icon: CheckCircle2 },
       cancelled: { variant: 'secondary', icon: XCircle },
       past_due: { variant: 'destructive', icon: Clock },
@@ -138,7 +137,7 @@ export default function CustomerDetailPage() {
 
     return (
       <Badge variant={config.variant} className="gap-1">
-        <Icon size={12} />
+        <Icon className="w-3 h-3" />
         {status.replace('_', ' ')}
       </Badge>
     );
@@ -364,7 +363,7 @@ export default function CustomerDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle>Current Subscription</CardTitle>
-              <CardDescription>Manage the customer's subscription plan</CardDescription>
+              <CardDescription>Manage the customer&apos;s subscription plan</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">

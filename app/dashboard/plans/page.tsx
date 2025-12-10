@@ -1,20 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 import { planApi } from '@/lib/api-client';
 import { Plan } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, MoreVertical, Edit, Copy, Archive, Check } from 'lucide-react';
+import { Plus, Edit, Copy, Archive, Check } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+
 
 export default function PlansPage() {
-  const router = useRouter();
-  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   const { data: plansResponse, isLoading, refetch } = useQuery({
     queryKey: ['plans'],
@@ -23,24 +21,26 @@ export default function PlansPage() {
 
   const plans = plansResponse?.data || [];
 
-  const handleDuplicate = async (planId: string, planName: string) => {
+  const handleDuplicate = async (planId: number, planName: string) => {
     try {
       const newName = `${planName} (Copy)`;
-      await planApi.duplicate(planId, { new_name: newName });
+      await planApi.duplicate(planId, { name: newName, price_cents: 0 });
       toast.success('Plan duplicated successfully');
       refetch();
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to duplicate plan');
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      toast.error(axiosError.response?.data?.error || 'Failed to duplicate plan');
     }
   };
 
-  const handleDeactivate = async (planId: string) => {
+  const handleDeactivate = async (planId: number) => {
     try {
       await planApi.deactivate(planId);
       toast.success('Plan deactivated successfully');
       refetch();
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to deactivate plan');
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      toast.error(axiosError.response?.data?.error || 'Failed to deactivate plan');
     }
   };
 
@@ -135,7 +135,7 @@ export default function PlansPage() {
 
                   {plan.features && plan.features.length > 0 && (
                     <div className="space-y-2">
-                      {plan.features.slice(0, 3).map((feature, index) => (
+                      {plan.features.slice(0, 3).map((feature: string, index: number) => (
                         <div key={index} className="flex items-start gap-2 text-sm">
                           <Check className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
                           <span>{feature}</span>

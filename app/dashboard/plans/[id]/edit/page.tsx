@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tantml:query/react-query';
+import { useQuery } from '@tanstack/react-query';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import { planApi } from '@/lib/api-client';
@@ -27,8 +27,8 @@ const planSchema = z.object({
   billing_period: z.enum(['monthly', 'yearly']),
   trial_period_days: z.string().optional(),
   features: z.array(z.object({ value: z.string() })).optional(),
-  is_active: z.boolean().default(true),
-  is_featured: z.boolean().default(false),
+  is_active: z.boolean().optional(),
+  is_featured: z.boolean().optional(),
 });
 
 type PlanFormData = z.infer<typeof planSchema>;
@@ -36,7 +36,7 @@ type PlanFormData = z.infer<typeof planSchema>;
 export default function EditPlanPage() {
   const router = useRouter();
   const params = useParams();
-  const planId = params.id as string;
+  const planId = Number(params.id as string);
   const [isLoading, setIsLoading] = useState(false);
 
   const { data: planResponse, isLoading: isFetchingPlan } = useQuery({
@@ -78,7 +78,7 @@ export default function EditPlanPage() {
         price: plan.price.toString(),
         billing_period: plan.billing_period,
         trial_period_days: plan.trial_period_days?.toString() || '',
-        features: plan.features?.map(f => ({ value: f })) || [],
+        features: plan.features?.map((f: string) => ({ value: f })) || [],
         is_active: plan.is_active,
         is_featured: plan.is_featured,
       });
@@ -102,8 +102,9 @@ export default function EditPlanPage() {
       await planApi.update(planId, payload);
       toast.success('Plan updated successfully!');
       router.push('/dashboard/plans');
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to update plan';
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { error?: string; message?: string } } };
+      const errorMessage = axiosError.response?.data?.error || axiosError.response?.data?.message || 'Failed to update plan';
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -252,7 +253,7 @@ export default function EditPlanPage() {
 
               {fields.length === 0 ? (
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  No features added yet. Click "Add Feature" to start.
+                  No features added yet. Click &quot;Add Feature&quot; to start.
                 </p>
               ) : (
                 <div className="space-y-3">

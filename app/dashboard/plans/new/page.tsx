@@ -43,10 +43,10 @@ export default function NewPlanPage() {
     watch,
     setValue,
     formState: { errors },
-  } = useForm<PlanFormData>({
+  } = useForm({
     resolver: zodResolver(planSchema),
     defaultValues: {
-      billing_period: 'monthly',
+      billing_period: 'monthly' as const,
       features: [],
       is_active: true,
       is_featured: false,
@@ -64,19 +64,20 @@ export default function NewPlanPage() {
       const payload = {
         name: data.name,
         description: data.description,
-        price: Number(data.price),
-        billing_period: data.billing_period,
-        trial_period_days: data.trial_period_days ? Number(data.trial_period_days) : 0,
-        features: data.features?.map(f => f.value).filter(Boolean) || [],
-        is_active: data.is_active,
-        is_featured: data.is_featured,
+        price_cents: Math.round(Number(data.price) * 100),
+        currency: 'USD',
+        billing_interval: data.billing_period === 'monthly' ? 'month' as const : 'year' as const,
+        trial_days: data.trial_period_days ? Number(data.trial_period_days) : undefined,
+        features_json: data.features?.map((f: { value: string }) => f.value).filter(Boolean) || [],
+        is_visible: data.is_active,
       };
 
       await planApi.create(payload);
       toast.success('Plan created successfully!');
       router.push('/dashboard/plans');
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to create plan';
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { error?: string; message?: string } } };
+      const errorMessage = axiosError.response?.data?.error || axiosError.response?.data?.message || 'Failed to create plan';
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -206,7 +207,7 @@ export default function NewPlanPage() {
 
               {fields.length === 0 ? (
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  No features added yet. Click "Add Feature" to start.
+                  No features added yet. Click &quot;Add Feature&quot; to start.
                 </p>
               ) : (
                 <div className="space-y-3">

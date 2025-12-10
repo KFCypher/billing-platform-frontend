@@ -145,7 +145,7 @@ export const planApi = {
     billing_interval: 'month' | 'year';
     trial_days?: number;
     features_json?: string[];
-    metadata_json?: Record<string, any>;
+    metadata_json?: Record<string, unknown>;
     is_visible?: boolean;
   }) => apiClient.post('/auth/plans/', data),
   
@@ -153,7 +153,7 @@ export const planApi = {
     name?: string;
     description?: string;
     features_json?: string[];
-    metadata_json?: Record<string, any>;
+    metadata_json?: Record<string, unknown>;
     is_visible?: boolean;
     trial_days?: number;
   }) => apiClient.patch(`/auth/plans/${id}/`, data),

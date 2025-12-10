@@ -27,11 +27,12 @@ export default function WebhooksPage() {
   const handleSaveWebhook = async () => {
     setIsSaving(true);
     try {
-      await webhookApi.setConfig({ url: webhookUrl });
+      await webhookApi.setConfig(webhookUrl);
       toast.success('Webhook URL saved successfully!');
       refetch();
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to save webhook URL');
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      toast.error(axiosError.response?.data?.error || 'Failed to save webhook URL');
     } finally {
       setIsSaving(false);
     }
@@ -42,8 +43,9 @@ export default function WebhooksPage() {
     try {
       await webhookApi.test();
       toast.success('Test webhook sent successfully!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to send test webhook');
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      toast.error(axiosError.response?.data?.error || 'Failed to send test webhook');
     } finally {
       setIsTesting(false);
     }

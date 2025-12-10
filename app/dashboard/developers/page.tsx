@@ -17,14 +17,17 @@ export default function DevelopersPage() {
   useEffect(() => {
     // In a real app, fetch API keys from backend
     // For now, get from localStorage if available
-    const tenant = localStorage.getItem('tenant');
-    if (tenant) {
-      const tenantData = JSON.parse(tenant);
-      // These would come from the registration response
-      setApiKeys({
-        live: 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxx',
-        test: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx'
-      });
+    if (typeof window !== 'undefined') {
+      const tenant = localStorage.getItem('tenant');
+      if (tenant) {
+        // These would come from the registration response
+        const keys = {
+          live: 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxx',
+          test: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx'
+        };
+        // Use setTimeout to avoid setState in render
+        setTimeout(() => setApiKeys(keys), 0);
+      }
     }
   }, []);
 
@@ -141,7 +144,7 @@ const subscription = await client.subscriptions.create({
 
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                  <strong>💡 Tip:</strong> Always use test API keys during development. Switch to live keys only when you're ready to go to production.
+                  <strong>💡 Tip:</strong> Always use test API keys during development. Switch to live keys only when you&apos;re ready to go to production.
                 </p>
               </div>
             </CardContent>

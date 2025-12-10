@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Circle, ArrowRight, ArrowLeft, ExternalLink, Copy, Check } from 'lucide-react';
+import { CheckCircle2, ArrowRight, ArrowLeft, ExternalLink, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,7 +28,7 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [stripeConnected, setStripeConnected] = useState(false);
-  const [firstPlanCreated, setFirstPlanCreated] = useState(false);
+  const [, setFirstPlanCreated] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedWebhook, setCopiedWebhook] = useState(false);
 
@@ -52,7 +52,7 @@ export default function OnboardingPage() {
 
   const handleStripeConnect = () => {
     // In production, this would redirect to Stripe OAuth
-    const stripeConnectUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=YOUR_STRIPE_CLIENT_ID&scope=read_write`;
+    // const stripeConnectUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=YOUR_STRIPE_CLIENT_ID&scope=read_write`;
     
     // Simulate connection for demo
     setTimeout(() => {
@@ -83,7 +83,7 @@ export default function OnboardingPage() {
       setFirstPlanCreated(true);
       toast.success('First plan created successfully!');
       setCurrentStep(3);
-    } catch (error) {
+    } catch {
       toast.error('Failed to create plan');
     }
   };
@@ -134,7 +134,7 @@ const subscription = await billing.subscriptions.create({
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold tracking-tight mb-2">Welcome to Your Billing Platform</h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Let's get you set up in just a few steps
+            Let&apos;s get you set up in just a few steps
           </p>
         </div>
 
@@ -383,7 +383,7 @@ const subscription = await billing.subscriptions.create({
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                      <h4 className="font-medium mb-2">Events You'll Receive:</h4>
+                      <h4 className="font-medium mb-2">Events You&apos;ll Receive:</h4>
                       <div className="grid grid-cols-2 gap-2">
                         <Badge variant="outline">subscription.created</Badge>
                         <Badge variant="outline">subscription.updated</Badge>

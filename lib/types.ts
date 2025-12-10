@@ -1,5 +1,5 @@
 // API Response Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data?: T;
   message?: string;
   error?: string;
@@ -75,15 +75,20 @@ export interface Plan {
   name: string;
   description: string;
   price_cents: number;
+  price?: number; // For display
   currency: string;
   billing_interval: 'month' | 'year';
+  billing_period?: 'monthly' | 'yearly'; // Alternative format
   trial_days: number;
+  trial_period_days?: number; // Alternative format
   stripe_product_id: string;
   stripe_price_id: string;
   features_json: string[];
-  metadata_json: Record<string, any>;
+  features?: string[]; // Alternative format
+  metadata_json: Record<string, unknown>;
   is_active: boolean;
   is_visible: boolean;
+  is_featured?: boolean; // For featured plans
   price_display: string;
   has_trial: boolean;
   created_at: string;
@@ -98,7 +103,7 @@ export interface CreatePlanRequest {
   billing_interval: 'month' | 'year';
   trial_days?: number;
   features_json?: string[];
-  metadata_json?: Record<string, any>;
+  metadata_json?: Record<string, unknown>;
   is_visible?: boolean;
 }
 
@@ -106,7 +111,7 @@ export interface UpdatePlanRequest {
   name?: string;
   description?: string;
   features_json?: string[];
-  metadata_json?: Record<string, any>;
+  metadata_json?: Record<string, unknown>;
   is_visible?: boolean;
   trial_days?: number;
 }
@@ -125,7 +130,7 @@ export interface Customer {
   name: string;
   stripe_customer_id: string;
   phone: string | null;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -164,7 +169,7 @@ export interface WebhookEvent {
   id: number;
   event_type: string;
   stripe_event_id: string;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
   status: 'pending' | 'processing' | 'succeeded' | 'failed';
   attempts: number;
   last_error: string | null;
@@ -183,7 +188,7 @@ export interface MetricData {
 export interface ChartData {
   date: string;
   value: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface KPIMetrics {

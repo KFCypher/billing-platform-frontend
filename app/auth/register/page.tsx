@@ -81,35 +81,39 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push('/dashboard');
       }, 5000);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Registration error:', error);
-      console.error('Error response:', error.response?.data);
+      const axiosError = error as { response?: { data?: { error?: string; message?: string; detail?: string; [key: string]: unknown } }, message?: string };
+      if (axiosError.response?.data) {
+        console.error('Error response:', axiosError.response.data);
+      }
       
       // Handle different error formats from Django
       let errorMessage = 'Registration failed';
       
-      if (error.response?.data) {
-        if (typeof error.response.data === 'string') {
-          errorMessage = error.response.data;
-        } else if (error.response.data.error) {
-          errorMessage = error.response.data.error;
-        } else if (error.response.data.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.response.data.detail) {
-          errorMessage = error.response.data.detail;
+      if (axiosError.response?.data) {
+        const data = axiosError.response.data;
+        if (typeof data === 'string') {
+          errorMessage = data;
+        } else if (data.error) {
+          errorMessage = data.error;
+        } else if (data.message) {
+          errorMessage = data.message;
+        } else if (data.detail) {
+          errorMessage = data.detail;
         } else {
           // Handle field-specific errors
-          const fields = Object.keys(error.response.data);
+          const fields = Object.keys(data);
           if (fields.length > 0) {
             const firstField = fields[0];
-            const fieldError = error.response.data[firstField];
+            const fieldError = data[firstField];
             errorMessage = Array.isArray(fieldError) 
               ? `${firstField}: ${fieldError[0]}` 
               : `${firstField}: ${fieldError}`;
           }
         }
-      } else if (error.message) {
-        errorMessage = error.message;
+      } else if (axiosError.message) {
+        errorMessage = axiosError.message;
       }
       
       toast.error(errorMessage);

@@ -1,24 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { MetricCard } from '@/components/dashboard/metric-card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DollarSign, Users, TrendingDown, AlertCircle, Plus, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [tenant, setTenant] = useState<any>(null);
-
-  useEffect(() => {
+  const [user] = useState<{ first_name?: string; email?: string } | null>(() => {
+    if (typeof window === 'undefined') return null;
     const userData = localStorage.getItem('user');
-    const tenantData = localStorage.getItem('tenant');
-    if (userData) setUser(JSON.parse(userData));
-    if (tenantData) setTenant(JSON.parse(tenantData));
-  }, []);
+    if (userData) {
+      try {
+        return JSON.parse(userData);
+      } catch (e) {
+        console.error('Failed to parse user data:', e);
+        return null;
+      }
+    }
+    return null;
+  });
 
   return (
     <div className="space-y-8">
@@ -26,7 +29,7 @@ export default function DashboardPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Welcome back, {user?.first_name || user?.email || 'User'}! Here's what's happening with your billing.
+          Welcome back, {user?.first_name || user?.email || 'User'}! Here&apos;s what&apos;s happening with your billing.
         </p>
       </div>
 

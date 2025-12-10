@@ -46,8 +46,9 @@ export default function SettingsPage() {
         clearInterval(pollInterval);
         setIsConnecting(false);
       }, 300000);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to connect Stripe');
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      toast.error(axiosError.response?.data?.error || 'Failed to connect Stripe');
       setIsConnecting(false);
     }
   };

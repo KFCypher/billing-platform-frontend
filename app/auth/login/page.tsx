@@ -52,33 +52,34 @@ export default function LoginPage() {
 
       toast.success('Welcome back!');
       router.push('/dashboard');
-    } catch (error: any) {
-      console.error('Login error:', error);
-      console.error('Error response:', error.response?.data);
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { error?: string; message?: string; detail?: string; [key: string]: unknown } }, message?: string };
+      console.error('Login error:', axiosError);
+      console.error('Error response:', axiosError.response?.data);
       
       let errorMessage = 'Login failed';
       
-      if (error.response?.data) {
-        if (typeof error.response.data === 'string') {
-          errorMessage = error.response.data;
-        } else if (error.response.data.error) {
-          errorMessage = error.response.data.error;
-        } else if (error.response.data.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.response.data.detail) {
-          errorMessage = error.response.data.detail;
+      if (axiosError.response?.data) {
+        if (typeof axiosError.response.data === 'string') {
+          errorMessage = axiosError.response.data;
+        } else if (axiosError.response.data.error) {
+          errorMessage = axiosError.response.data.error;
+        } else if (axiosError.response.data.message) {
+          errorMessage = axiosError.response.data.message;
+        } else if (axiosError.response.data.detail) {
+          errorMessage = axiosError.response.data.detail;
         } else {
-          const fields = Object.keys(error.response.data);
+          const fields = Object.keys(axiosError.response.data);
           if (fields.length > 0) {
             const firstField = fields[0];
-            const fieldError = error.response.data[firstField];
+            const fieldError = axiosError.response.data[firstField];
             errorMessage = Array.isArray(fieldError) 
               ? `${firstField}: ${fieldError[0]}` 
               : `${firstField}: ${fieldError}`;
           }
         }
-      } else if (error.message) {
-        errorMessage = error.message;
+      } else if (axiosError.message) {
+        errorMessage = axiosError.message;
       }
       
       toast.error(errorMessage);
@@ -157,7 +158,7 @@ export default function LoginPage() {
               )}
             </Button>
             <p className="text-sm text-center text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/auth/register" className="text-blue-600 hover:underline">
                 Sign up
               </Link>
