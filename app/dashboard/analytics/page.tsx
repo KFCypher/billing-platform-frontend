@@ -2,9 +2,66 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, TrendingUp, Users, DollarSign } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, DollarSign, ArrowUp, ArrowDown } from 'lucide-react';
+import { 
+  LineChart, 
+  Line, 
+  BarChart, 
+  Bar, 
+  PieChart, 
+  Pie, 
+  Cell,
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Legend 
+} from 'recharts';
+
+// Sample data
+const revenueData = [
+  { month: 'Jan', mrr: 4200, arr: 50400 },
+  { month: 'Feb', mrr: 5100, arr: 61200 },
+  { month: 'Mar', mrr: 6300, arr: 75600 },
+  { month: 'Apr', mrr: 7200, arr: 86400 },
+  { month: 'May', mrr: 8500, arr: 102000 },
+  { month: 'Jun', mrr: 9800, arr: 117600 },
+];
+
+const customerGrowthData = [
+  { month: 'Jan', new: 12, churned: 2 },
+  { month: 'Feb', new: 18, churned: 3 },
+  { month: 'Mar', new: 25, churned: 4 },
+  { month: 'Apr', new: 22, churned: 5 },
+  { month: 'May', new: 30, churned: 3 },
+  { month: 'Jun', new: 35, churned: 4 },
+];
+
+const planPerformanceData = [
+  { name: 'Basic', subscribers: 45, revenue: 899, color: '#3b82f6' },
+  { name: 'Professional', subscribers: 32, revenue: 1598, color: '#10b981' },
+  { name: 'Enterprise', subscribers: 15, revenue: 2999, color: '#8b5cf6' },
+];
+
+const cohortData = [
+  { cohort: 'Jan 2024', month1: 100, month2: 85, month3: 78, month4: 72, month5: 68, month6: 65 },
+  { cohort: 'Feb 2024', month1: 100, month2: 88, month3: 82, month4: 76, month5: 71 },
+  { cohort: 'Mar 2024', month1: 100, month2: 90, month3: 84, month4: 79 },
+  { cohort: 'Apr 2024', month1: 100, month2: 87, month3: 81 },
+  { cohort: 'May 2024', month1: 100, month2: 92 },
+  { cohort: 'Jun 2024', month1: 100 },
+];
 
 export default function AnalyticsPage() {
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -25,8 +82,11 @@ export default function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$0</div>
-            <p className="text-xs text-green-600 mt-1">+0% from last month</p>
+            <div className="text-2xl font-bold">$9,800</div>
+            <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+              <ArrowUp size={12} />
+              +15.3% from last month
+            </p>
           </CardContent>
         </Card>
 
@@ -38,8 +98,11 @@ export default function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-green-600 mt-1">+0% from last month</p>
+            <div className="text-2xl font-bold">92</div>
+            <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+              <ArrowUp size={12} />
+              +31 from last month
+            </p>
           </CardContent>
         </Card>
 
@@ -51,7 +114,7 @@ export default function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0%</div>
+            <div className="text-2xl font-bold">15.3%</div>
             <p className="text-xs text-gray-600 mt-1">Month over month</p>
           </CardContent>
         </Card>
@@ -64,8 +127,11 @@ export default function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0%</div>
-            <p className="text-xs text-gray-600 mt-1">Last 30 days</p>
+            <div className="text-2xl font-bold">4.3%</div>
+            <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+              <ArrowDown size={12} />
+              -1.2% from last month
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -83,40 +149,113 @@ export default function AnalyticsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Revenue Over Time</CardTitle>
-              <CardDescription>Monthly recurring revenue (MRR) trend</CardDescription>
+              <CardDescription>Monthly recurring revenue (MRR) and annual recurring revenue (ARR) trends</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-center h-[300px] text-gray-400">
-                <div className="text-center">
-                  <BarChart3 className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <p>No revenue data available yet</p>
-                  <p className="text-sm mt-2">Charts will appear once you have active subscriptions</p>
-                </div>
-              </div>
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
+                  <XAxis 
+                    dataKey="month" 
+                    className="text-xs"
+                    stroke="#888888"
+                  />
+                  <YAxis 
+                    className="text-xs"
+                    stroke="#888888"
+                    tickFormatter={(value) => formatCurrency(value)}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                    }}
+                    formatter={(value: number) => formatCurrency(value)}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="mrr" 
+                    name="MRR"
+                    stroke="#3b82f6" 
+                    strokeWidth={2}
+                    dot={{ fill: '#3b82f6' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="arr" 
+                    name="ARR"
+                    stroke="#10b981" 
+                    strokeWidth={2}
+                    dot={{ fill: '#10b981' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
 
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Revenue by Plan</CardTitle>
-                <CardDescription>Distribution across subscription plans</CardDescription>
+                <CardTitle>Revenue Breakdown</CardTitle>
+                <CardDescription>Current month revenue by plan</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-center h-[200px] text-gray-400">
-                  <p className="text-sm">No data available</p>
-                </div>
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={planPerformanceData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="revenue"
+                    >
+                      {planPerformanceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  </PieChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Payment Success Rate</CardTitle>
-                <CardDescription>Successful vs failed payments</CardDescription>
+                <CardTitle>Revenue Metrics</CardTitle>
+                <CardDescription>Key revenue indicators</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-center h-[200px] text-gray-400">
-                  <p className="text-sm">No data available</p>
+              <CardContent className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-gray-600">ARR</span>
+                    <span className="text-sm font-medium">$117,600</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-green-500" style={{ width: '85%' }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-gray-600">ARPU</span>
+                    <span className="text-sm font-medium">$106.52</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500" style={{ width: '65%' }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-gray-600">LTV</span>
+                    <span className="text-sm font-medium">$1,278</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-purple-500" style={{ width: '75%' }} />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -128,38 +267,64 @@ export default function AnalyticsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Customer Growth</CardTitle>
-              <CardDescription>New customers over time</CardDescription>
+              <CardDescription>New customers vs churned customers over time</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-center h-[300px] text-gray-400">
-                <div className="text-center">
-                  <Users className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <p>No customer data available yet</p>
-                </div>
-              </div>
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={customerGrowthData}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
+                  <XAxis 
+                    dataKey="month" 
+                    className="text-xs"
+                    stroke="#888888"
+                  />
+                  <YAxis 
+                    className="text-xs"
+                    stroke="#888888"
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <Legend />
+                  <Bar dataKey="new" name="New Customers" fill="#10b981" />
+                  <Bar dataKey="churned" name="Churned" fill="#ef4444" />
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
 
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-3">
             <Card>
-              <CardHeader>
-                <CardTitle>Customer Lifetime Value</CardTitle>
-                <CardDescription>Average LTV per customer</CardDescription>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Customers</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">$0.00</div>
-                <p className="text-sm text-gray-600 mt-2">No data yet</p>
+                <div className="text-2xl font-bold">92</div>
+                <p className="text-xs text-green-600 mt-1">+35 this month</p>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Average Revenue Per User</CardTitle>
-                <CardDescription>ARPU</CardDescription>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">New This Month</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">$0.00</div>
-                <p className="text-sm text-gray-600 mt-2">No data yet</p>
+                <div className="text-2xl font-bold">35</div>
+                <p className="text-xs text-gray-600 mt-1">16% higher than average</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">Churned This Month</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">4</div>
+                <p className="text-xs text-gray-600 mt-1">4.3% churn rate</p>
               </CardContent>
             </Card>
           </div>
@@ -169,36 +334,182 @@ export default function AnalyticsPage() {
         <TabsContent value="plans" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Plan Popularity</CardTitle>
-              <CardDescription>Number of subscribers per plan</CardDescription>
+              <CardTitle>Plan Performance</CardTitle>
+              <CardDescription>Subscriber count and revenue by plan</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-center h-[300px] text-gray-400">
-                <div className="text-center">
-                  <BarChart3 className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <p>No subscription data available yet</p>
-                </div>
+              <div className="space-y-6">
+                {planPerformanceData.map((plan) => (
+                  <div key={plan.name} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: plan.color }}
+                        />
+                        <span className="font-medium">{plan.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{formatCurrency(plan.revenue)}</p>
+                        <p className="text-sm text-gray-600">{plan.subscribers} subscribers</p>
+                      </div>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full transition-all" 
+                        style={{ 
+                          width: `${(plan.subscribers / 92) * 100}%`,
+                          backgroundColor: plan.color
+                        }} 
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Plan Distribution</CardTitle>
+                <CardDescription>Percentage of customers on each plan</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={planPerformanceData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="subscribers"
+                    >
+                      {planPerformanceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Plan Metrics</CardTitle>
+                <CardDescription>Average metrics per plan</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {planPerformanceData.map((plan) => {
+                  const avgRevenue = plan.revenue / plan.subscribers;
+                  return (
+                    <div key={plan.name}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-gray-600">{plan.name} ARPU</span>
+                        <span className="text-sm font-medium">{formatCurrency(avgRevenue)}</span>
+                      </div>
+                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full transition-all" 
+                          style={{ 
+                            width: `${(avgRevenue / 200) * 100}%`,
+                            backgroundColor: plan.color
+                          }} 
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Cohorts Tab */}
         <TabsContent value="cohorts" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Cohort Analysis</CardTitle>
-              <CardDescription>Customer retention by signup month</CardDescription>
+              <CardTitle>Cohort Retention Matrix</CardTitle>
+              <CardDescription>Customer retention rates by signup cohort</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-center h-[300px] text-gray-400">
-                <div className="text-center">
-                  <Users className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <p>Cohort data will be available soon</p>
-                </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 px-3 font-medium">Cohort</th>
+                      <th className="text-center py-2 px-3 font-medium">Month 1</th>
+                      <th className="text-center py-2 px-3 font-medium">Month 2</th>
+                      <th className="text-center py-2 px-3 font-medium">Month 3</th>
+                      <th className="text-center py-2 px-3 font-medium">Month 4</th>
+                      <th className="text-center py-2 px-3 font-medium">Month 5</th>
+                      <th className="text-center py-2 px-3 font-medium">Month 6</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cohortData.map((cohort) => (
+                      <tr key={cohort.cohort} className="border-b">
+                        <td className="py-2 px-3 font-medium">{cohort.cohort}</td>
+                        {[cohort.month1, cohort.month2, cohort.month3, cohort.month4, cohort.month5, cohort.month6].map((value, idx) => {
+                          if (!value) return <td key={idx} className="py-2 px-3 text-center text-gray-400">-</td>;
+                          
+                          const bgColor = 
+                            value >= 90 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                            value >= 80 ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                            value >= 70 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                            'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+                          
+                          return (
+                            <td key={idx} className="py-2 px-3 text-center">
+                              <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${bgColor}`}>
+                                {value}%
+                              </span>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </CardContent>
           </Card>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">30-Day Retention</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">88%</div>
+                <p className="text-xs text-green-600 mt-1">+2% from last cohort</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">90-Day Retention</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">82%</div>
+                <p className="text-xs text-green-600 mt-1">+1% from last cohort</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">180-Day Retention</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">72%</div>
+                <p className="text-xs text-gray-600 mt-1">Stable</p>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

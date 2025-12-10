@@ -23,14 +23,14 @@ import { toast } from 'sonner';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Customers', href: '/customers', icon: Users },
-  { name: 'Plans', href: '/plans', icon: Package },
-  { name: 'Subscriptions', href: '/subscriptions', icon: CreditCard },
-  { name: 'Payments', href: '/payments', icon: Wallet },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Webhooks', href: '/webhooks', icon: Webhook },
-  { name: 'Developers', href: '/developers', icon: Code },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Customers', href: '/dashboard/customers', icon: Users },
+  { name: 'Plans', href: '/dashboard/plans', icon: Package },
+  { name: 'Subscriptions', href: '/dashboard/subscriptions', icon: CreditCard },
+  { name: 'Payments', href: '/dashboard/payments', icon: Wallet },
+  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+  { name: 'Webhooks', href: '/dashboard/webhooks', icon: Webhook },
+  { name: 'Developers', href: '/dashboard/developers', icon: Code },
+  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
 export default function DashboardLayout({
