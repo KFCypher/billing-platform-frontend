@@ -58,7 +58,7 @@ export default function PlansPage() {
             Manage your subscription plans and pricing
           </p>
         </div>
-        <Link href="/plans/new">
+        <Link href="/dashboard/plans/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             Create Plan
@@ -91,7 +91,7 @@ export default function PlansPage() {
             <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
               Get started by creating your first subscription plan
             </p>
-            <Link href="/plans/new">
+            <Link href="/dashboard/plans/new">
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Plan

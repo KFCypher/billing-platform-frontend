@@ -2,6 +2,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customerApi } from '@/lib/api-client';
 import { toast } from 'sonner';
 
+interface AxiosError {
+  response?: {
+    data?: {
+      detail?: string;
+      error?: string;
+      message?: string;
+    };
+  };
+}
+
 export interface Customer {
   id: number;
   email: string;
@@ -95,8 +105,9 @@ export function useCreateCustomer() {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       toast.success('Customer created successfully');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create customer');
+    onError: (error: unknown) => {
+      const axiosError = error as AxiosError;
+      toast.error(axiosError.response?.data?.detail || 'Failed to create customer');
     },
   });
 }
@@ -115,8 +126,9 @@ export function useUpdateCustomer(id: number) {
       queryClient.invalidateQueries({ queryKey: ['customer', id] });
       toast.success('Customer updated successfully');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update customer');
+    onError: (error: unknown) => {
+      const axiosError = error as AxiosError;
+      toast.error(axiosError.response?.data?.detail || 'Failed to update customer');
     },
   });
 }

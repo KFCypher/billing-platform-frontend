@@ -255,5 +255,41 @@ export const subscriptionApi = {
   reactivate: (id: number) => apiClient.post(`/auth/subscriptions/${id}/reactivate/`),
 };
 
+// Mobile Money Configuration methods
+export const momoConfigApi = {
+  get: () => apiClient.get('/auth/tenants/momo/config/'),
+  
+  configure: (data: {
+    merchant_id: string;
+    api_key: string;
+    provider: 'mtn' | 'vodafone' | 'airteltigo';
+    sandbox: boolean;
+    country_code?: string;
+  }) => apiClient.post('/auth/tenants/momo/config/', data),
+  
+  disable: () => apiClient.delete('/auth/tenants/momo/config/'),
+  
+  test: () => apiClient.post('/auth/tenants/momo/test/'),
+};
+
+// Mobile Money Payment methods
+export const momoPaymentApi = {
+  initiate: (data: {
+    customer_id: number;
+    plan_id: number;
+    phone_number: string;
+    currency?: string;
+  }) => apiClient.post('/payments/momo/initiate/', data),
+  
+  checkStatus: (paymentId: number) => apiClient.get(`/payments/momo/${paymentId}/status/`),
+  
+  list: (filters?: {
+    status?: 'pending' | 'succeeded' | 'failed';
+    customer_id?: number;
+    limit?: number;
+    offset?: number;
+  }) => apiClient.get('/payments/momo/', { params: filters }),
+};
+
 // Export the configured client
 export default apiClient;

@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { Separator } from '@/components/ui/separator';
 import { Plus, X, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -24,6 +24,7 @@ const planSchema = z.object({
   trial_period_days: z.string().optional(),
   features: z.array(z.object({ value: z.string() })).optional(),
   is_active: z.boolean().optional(),
+  is_featured: z.boolean().optional(),
 });
 
 type PlanFormData = z.infer<typeof planSchema>;
@@ -45,14 +46,11 @@ export default function EditPlanPage() {
     register,
     handleSubmit,
     control,
-    watch,
-    setValue,
     reset,
     formState: { errors },
   } = useForm<PlanFormData>({
     resolver: zodResolver(planSchema),
     defaultValues: {
-      billing_period: 'monthly',
       features: [],
       is_active: true,
       is_featured: false,
@@ -70,11 +68,10 @@ export default function EditPlanPage() {
       reset({
         name: plan.name,
         description: plan.description || '',
-        price: plan.price.toString(),
-        billing_period: plan.billing_period,
         trial_period_days: plan.trial_days?.toString() || plan.trial_period_days?.toString() || '',
         features: plan.features_json?.map((f: string) => ({ value: f })) || plan.features?.map((f: string) => ({ value: f })) || [],
         is_active: plan.is_active,
+        is_featured: false,
       });
     }
   }, [plan, reset]);

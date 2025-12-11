@@ -7,11 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { stripeApi } from '@/lib/api-client';
-import { ExternalLink, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { ExternalLink, CheckCircle, XCircle, Loader2, Smartphone, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
   const [isConnecting, setIsConnecting] = useState(false);
+  const router = useRouter();
 
   const { data: stripeStatus, isLoading, refetch } = useQuery({
     queryKey: ['stripe-status'],
@@ -66,6 +68,7 @@ export default function SettingsPage() {
       <Tabs defaultValue="stripe">
         <TabsList>
           <TabsTrigger value="stripe">Stripe Integration</TabsTrigger>
+          <TabsTrigger value="mobile-money">Mobile Money</TabsTrigger>
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
@@ -196,6 +199,82 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
+        {/* Mobile Money Tab */}
+        <TabsContent value="mobile-money" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Smartphone className="h-5 w-5" />
+                Mobile Money Payments
+              </CardTitle>
+              <CardDescription>
+                Accept payments via MTN Mobile Money, Vodafone Cash, and AirtelTigo Money
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                    <strong>Mobile Money Integration</strong>
+                  </p>
+                  <ul className="text-sm text-blue-700 dark:text-blue-300 list-disc list-inside space-y-1">
+                    <li>Accept payments from 8 African countries</li>
+                    <li>Support for MTN, Vodafone, and AirtelTigo</li>
+                    <li>Real-time payment verification</li>
+                    <li>Automatic webhook notifications</li>
+                    <li>Sandbox testing available</li>
+                  </ul>
+                </div>
+                
+                <div className="flex flex-col gap-3">
+                  <Button 
+                    onClick={() => router.push('/dashboard/settings/mobile-money')}
+                    className="w-full sm:w-auto"
+                  >
+                    Configure Mobile Money
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                  <p className="text-sm text-gray-500">
+                    Set up your Mobile Money provider credentials to start accepting payments
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Supported Providers</CardTitle>
+              <CardDescription>
+                Mobile Money services supported by the platform
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 border rounded-lg">
+                  <h3 className="font-semibold mb-2">MTN Mobile Money</h3>
+                  <p className="text-sm text-gray-600">
+                    Available in Ghana, Uganda, Nigeria, and more
+                  </p>
+                </div>
+                <div className="p-4 border rounded-lg">
+                  <h3 className="font-semibold mb-2">Vodafone Cash</h3>
+                  <p className="text-sm text-gray-600">
+                    Available in Ghana and select regions
+                  </p>
+                </div>
+                <div className="p-4 border rounded-lg">
+                  <h3 className="font-semibold mb-2">AirtelTigo Money</h3>
+                  <p className="text-sm text-gray-600">
+                    Available in Ghana and West Africa
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* General Tab */}
         {/* General Tab */}
         <TabsContent value="general" className="mt-6">
           <Card>

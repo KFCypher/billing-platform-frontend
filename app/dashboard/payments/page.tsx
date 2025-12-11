@@ -1,12 +1,45 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Wallet, Search, Download, Filter } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Wallet, Search, Download, Filter, CreditCard, Smartphone, X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
+type PaymentProvider = 'all' | 'stripe' | 'momo';
+type MoMoProvider = 'all' | 'mtn' | 'vodafone' | 'airteltigo';
 
 export default function PaymentsPage() {
+  const [paymentProvider, setPaymentProvider] = useState<PaymentProvider>('all');
+  const [momoProvider, setMoMoProvider] = useState<MoMoProvider>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+
+  const clearFilters = () => {
+    setPaymentProvider('all');
+    setMoMoProvider('all');
+    setSearchQuery('');
+  };
+
+  const hasActiveFilters = paymentProvider !== 'all' || momoProvider !== 'all' || searchQuery !== '';
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -66,15 +99,126 @@ export default function PaymentsPage() {
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input 
-                placeholder="Search by customer, amount, or ID..." 
+                placeholder="Search by customer, amount, phone, or ID..." 
                 className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button variant="outline">
-              <Filter className="mr-2 h-4 w-4" />
-              Filters
-            </Button>
+            <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filters
+                  {hasActiveFilters && (
+                    <Badge variant="secondary" className="ml-2">
+                      {[paymentProvider !== 'all', momoProvider !== 'all', searchQuery !== ''].filter(Boolean).length}
+                    </Badge>
+                  )}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center justify-between">
+                    Filters
+                    {hasActiveFilters && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearFilters}
+                        className="h-8 px-2"
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Clear
+                      </Button>
+                    )}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+
+                  <div className="space-y-2">
+                    <Label>Payment Provider</Label>
+                    <Select value={paymentProvider} onValueChange={(v) => setPaymentProvider(v as PaymentProvider)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Providers</SelectItem>
+                        <SelectItem value="stripe">
+                          <div className="flex items-center gap-2">
+                            <CreditCard className="h-4 w-4" />
+                            Stripe
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="momo">
+                          <div className="flex items-center gap-2">
+                            <Smartphone className="h-4 w-4" />
+                            Mobile Money
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {paymentProvider === 'momo' && (
+                    <div className="space-y-2">
+                      <Label>Mobile Money Provider</Label>
+                      <Select value={momoProvider} onValueChange={(v) => setMoMoProvider(v as MoMoProvider)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Providers</SelectItem>
+                          <SelectItem value="mtn">MTN Mobile Money</SelectItem>
+                          <SelectItem value="vodafone">Vodafone Cash</SelectItem>
+                          <SelectItem value="airteltigo">AirtelTigo Money</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
+
+          {/* Active Filters Display */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {paymentProvider !== 'all' && (
+                <Badge variant="secondary" className="gap-1">
+                  Provider: {paymentProvider === 'stripe' ? 'Stripe' : 'Mobile Money'}
+                  <button
+                    onClick={() => setPaymentProvider('all')}
+                    className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {momoProvider !== 'all' && (
+                <Badge variant="secondary" className="gap-1">
+                  MoMo: {momoProvider.toUpperCase()}
+                  <button
+                    onClick={() => setMoMoProvider('all')}
+                    className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {searchQuery && (
+                <Badge variant="secondary" className="gap-1">
+                  Search: {searchQuery}
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 

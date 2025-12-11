@@ -2,6 +2,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { subscriptionApi } from '@/lib/api-client';
 import { toast } from 'sonner';
 
+interface AxiosError {
+  response?: {
+    data?: {
+      detail?: string;
+      error?: string;
+      message?: string;
+    };
+  };
+}
+
 export interface SubscriptionCustomer {
   id: number;
   email: string;
@@ -108,8 +118,9 @@ export function useCreateSubscription() {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
       toast.success('Checkout session created');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create subscription');
+    onError: (error: unknown) => {
+      const axiosError = error as AxiosError;
+      toast.error(axiosError.response?.data?.detail || 'Failed to create subscription');
     },
   });
 }
@@ -128,8 +139,9 @@ export function useUpdateSubscription(id: number) {
       queryClient.invalidateQueries({ queryKey: ['subscription', id] });
       toast.success('Subscription updated successfully');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update subscription');
+    onError: (error: unknown) => {
+      const axiosError = error as AxiosError;
+      toast.error(axiosError.response?.data?.detail || 'Failed to update subscription');
     },
   });
 }
@@ -148,8 +160,9 @@ export function useCancelSubscription(id: number) {
       queryClient.invalidateQueries({ queryKey: ['subscription', id] });
       toast.success('Subscription cancelled successfully');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to cancel subscription');
+    onError: (error: unknown) => {
+      const axiosError = error as AxiosError;
+      toast.error(axiosError.response?.data?.detail || 'Failed to cancel subscription');
     },
   });
 }
@@ -168,8 +181,9 @@ export function useReactivateSubscription(id: number) {
       queryClient.invalidateQueries({ queryKey: ['subscription', id] });
       toast.success('Subscription reactivated successfully');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to reactivate subscription');
+    onError: (error: unknown) => {
+      const axiosError = error as AxiosError;
+      toast.error(axiosError.response?.data?.detail || 'Failed to reactivate subscription');
     },
   });
 }
