@@ -180,5 +180,80 @@ export const webhookApi = {
   test: () => apiClient.post('/auth/tenants/webhooks/test/'),
 };
 
+// Customer methods
+export const customerApi = {
+  list: (filters?: {
+    search?: string;
+    subscription_status?: string;
+    country?: string;
+    has_subscription?: boolean;
+    page?: number;
+    page_size?: number;
+  }) => apiClient.get('/auth/customers/', { params: filters }),
+  
+  get: (id: number) => apiClient.get(`/auth/customers/${id}/`),
+  
+  create: (data: {
+    email: string;
+    full_name?: string;
+    phone?: string;
+    country?: string;
+    city?: string;
+    postal_code?: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    metadata_json?: Record<string, unknown>;
+  }) => apiClient.post('/auth/customers/create/', data),
+  
+  update: (id: number, data: {
+    full_name?: string;
+    phone?: string;
+    country?: string;
+    city?: string;
+    postal_code?: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    metadata_json?: Record<string, unknown>;
+  }) => apiClient.post(`/auth/customers/${id}/update/`, data),
+};
+
+// Subscription methods
+export const subscriptionApi = {
+  list: (filters?: {
+    status?: string;
+    plan_id?: number;
+    customer_id?: number;
+    page?: number;
+    page_size?: number;
+  }) => apiClient.get('/auth/subscriptions/', { params: filters }),
+  
+  get: (id: number) => apiClient.get(`/auth/subscriptions/${id}/`),
+  
+  create: (data: {
+    plan_id: number;
+    customer_id?: number;
+    customer_email?: string;
+    trial_days?: number;
+    success_url: string;
+    cancel_url: string;
+    metadata?: Record<string, unknown>;
+  }) => apiClient.post('/auth/subscriptions/create/', data),
+  
+  update: (id: number, data: {
+    plan_id?: number;
+    quantity?: number;
+    metadata?: Record<string, unknown>;
+  }) => apiClient.post(`/auth/subscriptions/${id}/update/`, data),
+  
+  cancel: (id: number, data: {
+    immediate?: boolean;
+    reason?: string;
+  }) => apiClient.post(`/auth/subscriptions/${id}/cancel/`, data),
+  
+  reactivate: (id: number) => apiClient.post(`/auth/subscriptions/${id}/reactivate/`),
+};
+
 // Export the configured client
 export default apiClient;
