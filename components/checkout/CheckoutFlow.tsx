@@ -142,7 +142,7 @@ export default function CheckoutFlow({
       );
     }
 
-    if (paymentStatus.status === 'FAILED') {
+    if (paymentStatus.status === 'failed') {
       return (
         <Card className="border-red-200 bg-red-50">
           <CardContent className="pt-6">

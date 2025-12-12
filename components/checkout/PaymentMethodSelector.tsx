@@ -1,9 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CreditCard, Smartphone } from 'lucide-react';
 
 export type PaymentMethod = 'stripe' | 'momo';
@@ -54,79 +52,91 @@ export default function PaymentMethodSelector({
   return (
     <div className="space-y-3">
       <Label className="text-base font-semibold">Payment Method</Label>
-      <RadioGroup value={value} onValueChange={handleChange}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {stripeEnabled && (
-            <Card
-              className={`cursor-pointer transition-all ${
-                value === 'stripe'
-                  ? 'border-blue-500 ring-2 ring-blue-500'
-                  : 'hover:border-gray-400'
-              }`}
-              onClick={() => onChange('stripe')}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <RadioGroupItem value="stripe" id="stripe" className="mt-1" />
-                  <div className="flex-1">
-                    <Label
-                      htmlFor="stripe"
-                      className="flex items-center gap-2 cursor-pointer font-semibold"
-                    >
-                      <CreditCard className="h-5 w-5" />
-                      Card Payment
-                    </Label>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Pay securely with credit or debit card via Stripe
-                    </p>
-                    <div className="flex gap-2 mt-2">
-                      <img src="/visa.svg" alt="Visa" className="h-6" />
-                      <img src="/mastercard.svg" alt="Mastercard" className="h-6" />
-                      <img src="/amex.svg" alt="Amex" className="h-6" />
-                    </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {stripeEnabled && (
+          <Card
+            className={`cursor-pointer transition-all ${
+              value === 'stripe'
+                ? 'border-blue-500 ring-2 ring-blue-500'
+                : 'hover:border-gray-400'
+            }`}
+            onClick={() => onChange('stripe')}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <input 
+                  type="radio" 
+                  value="stripe" 
+                  id="stripe" 
+                  checked={value === 'stripe'}
+                  onChange={() => onChange('stripe')}
+                  className="mt-1 h-4 w-4" 
+                />
+                <div className="flex-1">
+                  <Label
+                    htmlFor="stripe"
+                    className="flex items-center gap-2 cursor-pointer font-semibold"
+                  >
+                    <CreditCard className="h-5 w-5" />
+                    Card Payment
+                  </Label>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Pay securely with credit or debit card via Stripe
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <img src="/visa.svg" alt="Visa" className="h-6" />
+                    <img src="/mastercard.svg" alt="Mastercard" className="h-6" />
+                    <img src="/amex.svg" alt="Amex" className="h-6" />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-          {momoEnabled && (
-            <Card
-              className={`cursor-pointer transition-all ${
-                value === 'momo'
-                  ? 'border-yellow-500 ring-2 ring-yellow-500'
-                  : 'hover:border-gray-400'
-              }`}
-              onClick={() => onChange('momo')}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <RadioGroupItem value="momo" id="momo" className="mt-1" />
-                  <div className="flex-1">
-                    <Label
-                      htmlFor="momo"
-                      className="flex items-center gap-2 cursor-pointer font-semibold"
-                    >
-                      <Smartphone className="h-5 w-5" />
-                      Mobile Money
-                    </Label>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Pay with MTN, Vodafone, or AirtelTigo
-                    </p>
-                    <div className="flex gap-1 mt-2 text-xs text-gray-600">
-                      <span>MTN</span>
-                      <span>•</span>
-                      <span>Vodafone</span>
-                      <span>•</span>
-                      <span>AirtelTigo</span>
-                    </div>
+        {momoEnabled && (
+          <Card
+            className={`cursor-pointer transition-all ${
+              value === 'momo'
+                ? 'border-yellow-500 ring-2 ring-yellow-500'
+                : 'hover:border-gray-400'
+            }`}
+            onClick={() => onChange('momo')}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <input 
+                  type="radio" 
+                  value="momo" 
+                  id="momo" 
+                  checked={value === 'momo'}
+                  onChange={() => onChange('momo')}
+                  className="mt-1 h-4 w-4" 
+                />
+                <div className="flex-1">
+                  <Label
+                    htmlFor="momo"
+                    className="flex items-center gap-2 cursor-pointer font-semibold"
+                  >
+                    <Smartphone className="h-5 w-5" />
+                    Mobile Money
+                  </Label>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Pay with MTN, Vodafone, or AirtelTigo
+                  </p>
+                  <div className="flex gap-1 mt-2 text-xs text-gray-600">
+                    <span>MTN</span>
+                    <span>•</span>
+                    <span>Vodafone</span>
+                    <span>•</span>
+                    <span>AirtelTigo</span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </RadioGroup>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

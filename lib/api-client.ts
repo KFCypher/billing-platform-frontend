@@ -291,5 +291,130 @@ export const momoPaymentApi = {
   }) => apiClient.get('/payments/momo/', { params: filters }),
 };
 
+// Analytics API methods
+export const analyticsApi = {
+  getOverview: (params?: { start_date?: string; end_date?: string }) =>
+    apiClient.get('/analytics/overview/', { params }),
+  
+  getRevenue: (params?: { start_date?: string; end_date?: string; group_by?: string }) =>
+    apiClient.get('/analytics/revenue/', { params }),
+  
+  getCustomers: (params?: { start_date?: string; end_date?: string }) =>
+    apiClient.get('/analytics/customers/', { params }),
+  
+  getPayments: (params?: { start_date?: string; end_date?: string }) =>
+    apiClient.get('/analytics/payments/', { params }),
+  
+  getPlans: (params?: { start_date?: string; end_date?: string }) =>
+    apiClient.get('/analytics/plans/', { params }),
+  
+  exportCustomers: (params?: { start_date?: string; end_date?: string; format?: string }) =>
+    apiClient.get('/analytics/exports/customers/', { params, responseType: 'blob' }),
+  
+  exportSubscriptions: (params?: { start_date?: string; end_date?: string; format?: string }) =>
+    apiClient.get('/analytics/exports/subscriptions/', { params, responseType: 'blob' }),
+  
+  exportMetrics: (params?: { start_date?: string; end_date?: string; format?: string }) =>
+    apiClient.get('/analytics/exports/metrics/', { params, responseType: 'blob' }),
+};
+
+// Payments API
+export const paymentsApi = {
+  getAll: (filters?: {
+    customer?: string;
+    status?: string;
+    page?: number;
+    page_size?: number;
+    start_date?: string;
+    end_date?: string;
+  }) => apiClient.get('/payments/', { params: filters }),
+  
+  getById: (id: string) => apiClient.get(`/payments/${id}/`),
+  
+  refund: (id: string, data?: { amount?: number; reason?: string }) =>
+    apiClient.post(`/payments/${id}/refund/`, data),
+};
+
+// Customers API  
+export const customersApi = {
+  getAll: (filters?: {
+    search?: string;
+    status?: string;
+    plan?: string;
+    page?: number;
+    page_size?: number;
+  }) => apiClient.get('/customers/', { params: filters }),
+  
+  getById: (id: string) => apiClient.get(`/customers/${id}/`),
+  
+  create: (data: {
+    email: string;
+    full_name?: string;
+    phone?: string;
+    address?: string;
+    metadata?: Record<string, unknown>;
+  }) => apiClient.post('/customers/', data),
+  
+  update: (id: string, data: Partial<{
+    full_name: string;
+    phone: string;
+    address: string;
+    metadata: Record<string, unknown>;
+  }>) => apiClient.patch(`/customers/${id}/`, data),
+  
+  delete: (id: string) => apiClient.delete(`/customers/${id}/`),
+};
+
+// Subscriptions API
+export const subscriptionsApi = {
+  getAll: (filters?: {
+    customer?: string;
+    status?: string;
+    plan?: string;
+    page?: number;
+    page_size?: number;
+  }) => apiClient.get('/subscriptions/', { params: filters }),
+  
+  getById: (id: string) => apiClient.get(`/subscriptions/${id}/`),
+  
+  create: (data: {
+    customer: string;
+    plan: string;
+    start_date?: string;
+    trial_end_date?: string;
+  }) => apiClient.post('/subscriptions/', data),
+  
+  update: (id: number, data: Partial<{
+    plan: string;
+    status: string;
+    cancel_at_period_end: boolean;
+  }>) => apiClient.patch(`/subscriptions/${id}/`, data),
+  
+  cancel: (id: number, data?: { immediate?: boolean }) =>
+    apiClient.post(`/subscriptions/${id}/cancel/`, data),
+  
+  reactivate: (id: number) => apiClient.post(`/subscriptions/${id}/reactivate/`),
+};
+
+// Webhooks API
+export const webhooksApi = {
+  getAll: (filters?: {
+    status?: string;
+    event_type?: string;
+    page?: number;
+    page_size?: number;
+  }) => apiClient.get('/webhooks/', { params: filters }),
+  
+  retry: (id: string) => apiClient.post(`/webhooks/${id}/retry/`),
+  
+  getConfig: () => apiClient.get('/webhooks/config/'),
+  
+  updateConfig: (data: { url: string; events: string[]; secret?: string }) =>
+    apiClient.post('/webhooks/config/', data),
+  
+  test: (data: { url: string; event_type: string }) =>
+    apiClient.post('/webhooks/test/', data),
+};
+
 // Export the configured client
 export default apiClient;
