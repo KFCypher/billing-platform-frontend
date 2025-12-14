@@ -35,6 +35,12 @@ export default function DashboardPage() {
   // Handle nested data structure from API response
   const metrics = overview?.data?.data || overview?.data || {};
   const recentSubs = subscriptions?.results || [];
+  
+  // Transform revenue data for chart
+  const revenueChartData = (revenueData?.data?.time_series || []).map((item: any) => ({
+    date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    revenue: (item.mrr_cents || 0) / 100
+  }));
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive', icon: React.ElementType }> = {
@@ -81,20 +87,20 @@ export default function DashboardPage() {
           <>
             <MetricCard
               title="Monthly Recurring Revenue"
-              value={`$${Number(metrics.mrr || 0).toLocaleString()}`}
-              change={{ value: Number(metrics.mrr_growth || 0), isPositive: Number(metrics.mrr_growth || 0) >= 0 }}
+              value={metrics.mrr?.formatted || `$${((metrics.mrr?.cents || 0) / 100).toFixed(2)}`}
+              change={{ value: Number(metrics.growth_rate || 0), isPositive: Number(metrics.growth_rate || 0) >= 0 }}
               icon={DollarSign}
             />
             <MetricCard
               title="Active Subscribers"
-              value={Number(metrics.active_subscriptions || 0).toString()}
-              change={{ value: Number(metrics.subscriber_growth || 0), isPositive: Number(metrics.subscriber_growth || 0) >= 0 }}
+              value={Number(metrics.active_subscribers || 0).toString()}
+              change={{ value: 0, isPositive: true }}
               icon={Users}
             />
             <MetricCard
               title="Churn Rate"
               value={`${Number(metrics.churn_rate || 0).toFixed(1)}%`}
-              change={{ value: Number(metrics.churn_change || 0), isPositive: Number(metrics.churn_change || 0) <= 0 }}
+              change={{ value: 0, isPositive: Number(metrics.churn_rate || 0) <= 5 }}
               icon={TrendingDown}
             />
             <MetricCard
@@ -117,7 +123,7 @@ export default function DashboardPage() {
             {revenueLoading ? (
               <Skeleton className="h-[300px] w-full" />
             ) : (
-              <RevenueChart data={revenueData?.data?.revenue_data || []} />
+              <RevenueChart data={revenueChartData} />
             )}
           </CardContent>
         </Card>

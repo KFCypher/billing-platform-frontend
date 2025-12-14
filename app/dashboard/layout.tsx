@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { logout } from '@/lib/store/slices/authSlice';
 import { clearTenant } from '@/lib/store/slices/tenantSlice';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -62,13 +63,16 @@ export default function DashboardLayout({
         {/* Mobile menu button */}
         <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
           <h1 className="text-xl font-bold">Billing Platform</h1>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </Button>
+          </div>
         </div>
 
         {/* Sidebar */}
@@ -110,6 +114,10 @@ export default function DashboardLayout({
             </nav>
 
             <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-2 px-4">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Theme</span>
+                <ThemeToggle />
+              </div>
               <Button
                 variant="ghost"
                 className="w-full justify-start"

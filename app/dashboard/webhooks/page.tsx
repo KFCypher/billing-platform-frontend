@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { webhookApi } from '@/lib/api-client';
-import { Webhook, CheckCircle, XCircle, Loader2, Copy, Send } from 'lucide-react';
+import { webhookApi, webhooksApi } from '@/lib/api-client';
+import { Webhook, CheckCircle, XCircle, Loader2, Copy, Send, Clock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function WebhooksPage() {
@@ -41,8 +41,9 @@ export default function WebhooksPage() {
   const handleTestWebhook = async () => {
     setIsTesting(true);
     try {
-      await webhookApi.test();
+      await webhookApi.test({ event_type: 'test.webhook' });
       toast.success('Test webhook sent successfully!');
+      refetchEvents();
     } catch (error) {
       const axiosError = error as { response?: { data?: { error?: string } } };
       toast.error(axiosError.response?.data?.error || 'Failed to send test webhook');
@@ -50,6 +51,13 @@ export default function WebhooksPage() {
       setIsTesting(false);
     }
   };
+
+  // Fetch webhook events
+  const { data: eventsData, refetch: refetchEvents } = useQuery({
+    queryKey: ['webhook-events'],
+    queryFn: () => webhooksApi.getAll({ page_size: 10 }),
+    enabled: !!config?.is_active,
+  });
 
   return (
     <div className="space-y-6">
@@ -274,13 +282,70 @@ export default function WebhooksPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12 text-gray-400">
-            <Webhook className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p>No webhook deliveries yet</p>
-            <p className="text-sm mt-2">
-              Delivery history will appear here once events are triggered
-            </p>
-          </div>
+          {!config?.is_active ? (
+            <div className="text-center py-12 text-gray-400">
+              <Webhook className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p>Configure a webhook URL to see delivery history</p>
+            </div>
+          ) : !eventsData?.data?.results || eventsData.data.results.length === 0 ? (
+            <div className="text-center py-12 text-gray-400">
+              <Webhook className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p>No webhook deliveries yet</p>
+              <p className="text-sm mt-2">
+                Delivery history will appear here once events are triggered
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {eventsData.data.results.map((event: any) => (
+                <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-medium text-sm">{event.event_type}</p>
+                      {event.status === 'sent' ? (
+                        <Badge variant="default" className="bg-green-600">
+                          <CheckCircle className="mr-1 h-3 w-3" />
+                          Success
+                        </Badge>
+                      ) : event.status === 'failed' ? (
+                        <Badge variant="destructive">
+                          <AlertCircle className="mr-1 h-3 w-3" />
+                          Failed
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary">
+                          <Clock className="mr-1 h-3 w-3" />
+                          {event.status}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span>{new Date(event.created_at).toLocaleString()}</span>
+                      {event.response_code && <span>HTTP {event.response_code}</span>}
+                      <span>{event.attempts} attempt(s)</span>
+                    </div>
+                  </div>
+                  {event.status === 'failed' && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        try {
+                          await webhooksApi.retry(event.id);
+                          toast.success('Webhook retry queued');
+                          refetchEvents();
+                        } catch (error) {
+                          toast.error('Failed to retry webhook');
+                        }
+                      }}
+                    >
+                      Retry
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -1,20 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { planApi } from '@/lib/api-client';
+import { planApi, stripeApi, momoConfigApi, paystackConfigApi } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Plus, X, Loader2, ArrowLeft } from 'lucide-react';
+import { Plus, X, Loader2, ArrowLeft, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 const planSchema = z.object({
@@ -35,6 +36,74 @@ type PlanFormData = z.infer<typeof planSchema>;
 export default function NewPlanPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingProviders, setIsCheckingProviders] = useState(true);
+  const [stripeConnected, setStripeConnected] = useState<boolean | null>(null);
+  const [momoConfigured, setMomoConfigured] = useState<boolean | null>(null);
+  const [paystackConfigured, setPaystackConfigured] = useState<boolean | null>(null);
+  const [hasPaymentProvider, setHasPaymentProvider] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Check payment provider status
+    checkPaymentProviders();
+    
+    // Listen for payment configuration changes from other tabs/windows
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'paystack_configured' || e.key === 'momo_configured' || e.key === 'stripe_connected') {
+        console.log('Payment configuration changed, refreshing...');
+        checkPaymentProviders();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  const checkPaymentProviders = async () => {
+    setIsCheckingProviders(true);
+    try {
+      console.log('Checking payment providers...');
+      const [stripeResponse, momoResponse, paystackResponse] = await Promise.all([
+        stripeApi.getStatus().catch((err) => {
+          console.error('Stripe check error:', err);
+          return { data: { is_connected: false } };
+        }),
+        momoConfigApi.get().catch((err) => {
+          console.error('MoMo check error:', err);
+          return { data: { enabled: false } };
+        }),
+        paystackConfigApi.get().catch((err) => {
+          console.error('Paystack check error:', err);
+          return { data: { enabled: false } };
+        })
+      ]);
+      
+      console.log('Stripe response:', stripeResponse);
+      console.log('MoMo response:', momoResponse);
+      console.log('Paystack response:', paystackResponse);
+      
+      const stripeOk = stripeResponse.data?.is_connected === true;
+      const momoOk = momoResponse.data?.enabled === true;
+      const paystackOk = paystackResponse.data?.enabled === true;
+      
+      console.log('Payment providers:', { stripe: stripeOk, momo: momoOk, paystack: paystackOk });
+      
+      setStripeConnected(stripeOk);
+      setMomoConfigured(momoOk);
+      setPaystackConfigured(paystackOk);
+      setHasPaymentProvider(stripeOk || momoOk || paystackOk);
+    } catch (error) {
+      console.error('Error checking payment providers:', error);
+      setStripeConnected(false);
+      setMomoConfigured(false);
+      setPaystackConfigured(false);
+      setHasPaymentProvider(false);
+    } finally {
+      setIsCheckingProviders(false);
+    }
+  };
 
   const {
     register,
@@ -65,7 +134,7 @@ export default function NewPlanPage() {
         name: data.name,
         description: data.description,
         price_cents: Math.round(Number(data.price) * 100),
-        currency: 'USD',
+        currency: 'usd', // Backend expects lowercase
         billing_interval: data.billing_period === 'monthly' ? 'month' as const : 'year' as const,
         trial_days: data.trial_period_days ? Number(data.trial_period_days) : undefined,
         features_json: data.features?.map((f: { value: string }) => f.value).filter(Boolean) || [],
@@ -75,10 +144,42 @@ export default function NewPlanPage() {
       await planApi.create(payload);
       toast.success('Plan created successfully!');
       router.push('/dashboard/plans');
-    } catch (error) {
-      const axiosError = error as { response?: { data?: { error?: string; message?: string } } };
-      const errorMessage = axiosError.response?.data?.error || axiosError.response?.data?.message || 'Failed to create plan';
-      toast.error(errorMessage);
+    } catch (error: any) {
+      console.error('Plan creation error:', error);
+      
+      // Extract detailed error message
+      let errorMessage = 'Failed to create plan';
+      
+      if (error?.response?.data) {
+        const errorData = error.response.data;
+        
+        // Check for specific error messages
+        if (errorData.error) {
+          errorMessage = errorData.error;
+          // Add details if available
+          if (errorData.message) {
+            errorMessage += `: ${errorData.message}`;
+          } else if (errorData.details) {
+            errorMessage += `. ${errorData.details}`;
+          }
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData;
+        } else {
+          // Handle validation errors
+          const validationErrors = Object.entries(errorData)
+            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+            .join('; ');
+          if (validationErrors) {
+            errorMessage = validationErrors;
+          }
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage, { duration: 5000 });
     } finally {
       setIsLoading(false);
     }
@@ -99,6 +200,75 @@ export default function NewPlanPage() {
           Set up a new subscription plan for your customers
         </p>
       </div>
+
+      {/* Payment Provider Warning */}
+      {isCheckingProviders && (
+        <Alert>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <AlertTitle>Checking Payment Providers...</AlertTitle>
+          <AlertDescription>
+            Please wait while we verify your payment provider configuration.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {!isCheckingProviders && hasPaymentProvider === false && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Payment Provider Required</AlertTitle>
+          <AlertDescription>
+            <div className="space-y-2">
+              <p>
+                You need to configure at least one payment provider (Stripe, Mobile Money, or Paystack) before creating plans.{' '}
+                <Link href="/dashboard/settings" className="underline font-medium">
+                  Go to Settings to configure payment providers
+                </Link>
+              </p>
+              <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                <strong>Current Status:</strong>
+                <ul className="list-disc list-inside mt-1">
+                  <li>Stripe: {stripeConnected === null ? 'Checking...' : stripeConnected ? '✓ Connected' : '✗ Not connected'}</li>
+                  <li>Mobile Money: {momoConfigured === null ? 'Checking...' : momoConfigured ? '✓ Configured' : '✗ Not configured'}</li>
+                  <li>Paystack: {paystackConfigured === null ? 'Checking...' : paystackConfigured ? '✓ Configured' : '✗ Not configured'}</li>
+                </ul>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                disabled={isCheckingProviders}
+                onClick={() => {
+                  checkPaymentProviders();
+                  toast.info('Refreshing payment provider status...');
+                }}
+              >
+                {isCheckingProviders ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Checking...
+                  </>
+                ) : (
+                  'Check Again'
+                )}
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {/* Payment Provider Info */}
+      {!isCheckingProviders && hasPaymentProvider === true && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Configured Payment Methods:</strong>{' '}
+            {[
+              stripeConnected && 'Stripe',
+              momoConfigured && 'Mobile Money',
+              paystackConfigured && 'Paystack'
+            ].filter(Boolean).join(' • ')}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Card>
@@ -274,12 +444,19 @@ export default function NewPlanPage() {
 
         {/* Actions */}
         <div className="flex gap-4 mt-6">
-          <Button type="submit" disabled={isLoading}>
+          <Button 
+            type="submit" 
+            disabled={isLoading || hasPaymentProvider === false || hasPaymentProvider === null}
+          >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Creating...
               </>
+            ) : hasPaymentProvider === false ? (
+              'Configure Payment Provider First'
+            ) : hasPaymentProvider === null ? (
+              'Checking Payment Providers...'
             ) : (
               'Create Plan'
             )}

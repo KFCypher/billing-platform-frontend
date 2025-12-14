@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, TrendingUp, Users, DollarSign, ArrowUp, ArrowDown } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, DollarSign, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
 import { 
   LineChart, 
   Line, 
@@ -18,31 +18,12 @@ import {
   ResponsiveContainer,
   Legend 
 } from 'recharts';
-
-// Sample data
-const revenueData = [
-  { month: 'Jan', mrr: 4200, arr: 50400 },
-  { month: 'Feb', mrr: 5100, arr: 61200 },
-  { month: 'Mar', mrr: 6300, arr: 75600 },
-  { month: 'Apr', mrr: 7200, arr: 86400 },
-  { month: 'May', mrr: 8500, arr: 102000 },
-  { month: 'Jun', mrr: 9800, arr: 117600 },
-];
-
-const customerGrowthData = [
-  { month: 'Jan', new: 12, churned: 2 },
-  { month: 'Feb', new: 18, churned: 3 },
-  { month: 'Mar', new: 25, churned: 4 },
-  { month: 'Apr', new: 22, churned: 5 },
-  { month: 'May', new: 30, churned: 3 },
-  { month: 'Jun', new: 35, churned: 4 },
-];
-
-const planPerformanceData = [
-  { name: 'Basic', subscribers: 45, revenue: 899, color: '#3b82f6' },
-  { name: 'Professional', subscribers: 32, revenue: 1598, color: '#10b981' },
-  { name: 'Enterprise', subscribers: 15, revenue: 2999, color: '#8b5cf6' },
-];
+import { 
+  useAnalyticsOverview, 
+  useRevenueAnalytics, 
+  useCustomerAnalytics,
+  usePlanAnalytics 
+} from '@/lib/hooks/useAnalytics';
 
 const cohortData = [
   { cohort: 'Jan 2024', month1: 100, month2: 85, month3: 78, month4: 72, month5: 68, month6: 65 },
@@ -54,6 +35,44 @@ const cohortData = [
 ];
 
 export default function AnalyticsPage() {
+  // Fetch real analytics data
+  const { data: overview, isLoading: overviewLoading } = useAnalyticsOverview();
+  const { data: revenueData, isLoading: revenueLoading } = useRevenueAnalytics();
+  const { data: customerData, isLoading: customerLoading } = useCustomerAnalytics();
+  const { data: planData, isLoading: planLoading } = usePlanAnalytics();
+
+  const metrics = overview?.data || {};
+  const isLoading = overviewLoading || revenueLoading || customerLoading || planLoading;
+  
+  // Transform revenue data for chart
+  const revenueChartData = (revenueData?.data?.time_series || []).map((item: any) => ({
+    month: new Date(item.date).toLocaleDateString('en-US', { month: 'short' }),
+    mrr: (item.mrr_cents || 0) / 100,
+    arr: ((item.mrr_cents || 0) / 100) * 12
+  }));
+  
+  // Transform customer data for chart
+  const customerGrowthChartData = (customerData?.data?.growth_data || []).map((item: any) => ({
+    month: new Date(item.date).toLocaleDateString('en-US', { month: 'short' }),
+    new: item.new_customers || 0,
+    churned: item.churned_customers || 0
+  }));
+  
+  // Transform plan data for chart
+  const planPerformanceChartData = (planData?.data?.plan_breakdown || []).map((item: any, index: number) => ({
+    name: item.plan_name,
+    subscribers: item.subscriber_count || 0,
+    revenue: (item.mrr_cents || 0) / 100,
+    color: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444'][index % 5]
+  }));
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -82,10 +101,12 @@ export default function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$9,800</div>
-            <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
-              <ArrowUp size={12} />
-              +15.3% from last month
+            <div className="text-2xl font-bold">
+              {metrics.mrr?.formatted || `$${((metrics.mrr?.cents || 0) / 100).toFixed(2)}`}
+            </div>
+            <p className={`text-xs mt-1 flex items-center gap-1 ${(metrics.growth_rate || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {(metrics.growth_rate || 0) >= 0 ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
+              {Math.abs(metrics.growth_rate || 0).toFixed(1)}% from last month
             </p>
           </CardContent>
         </Card>
@@ -98,10 +119,10 @@ export default function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">92</div>
-            <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
-              <ArrowUp size={12} />
-              +31 from last month
+            <div className="text-2xl font-bold">{metrics.active_customers || 0}</div>
+            <p className={`text-xs mt-1 flex items-center gap-1 ${(customerData?.data?.new_customers_this_month || 0) >= 0 ? 'text-green-600' : 'text-gray-600'}`}>
+              {(customerData?.data?.new_customers_this_month || 0) >= 0 && <ArrowUp size={12} />}
+              +{customerData?.data?.new_customers_this_month || 0} from last month
             </p>
           </CardContent>
         </Card>
@@ -114,7 +135,7 @@ export default function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">15.3%</div>
+            <div className="text-2xl font-bold">{(metrics.growth_rate || 0).toFixed(1)}%</div>
             <p className="text-xs text-gray-600 mt-1">Month over month</p>
           </CardContent>
         </Card>
@@ -127,8 +148,8 @@ export default function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4.3%</div>
-            <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+            <div className="text-2xl font-bold">{(metrics.churn_rate || 0).toFixed(1)}%</div>
+            <p className={`text-xs mt-1 flex items-center gap-1 ${(metrics.churn_rate || 0) > 5 ? 'text-red-600' : 'text-green-600'}`}>
               <ArrowDown size={12} />
               -1.2% from last month
             </p>
@@ -153,7 +174,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
-                <LineChart data={revenueData}>
+                <LineChart data={revenueChartData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
                   <XAxis 
                     dataKey="month" 
@@ -205,7 +226,7 @@ export default function AnalyticsPage() {
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
-                      data={planPerformanceData}
+                      data={planPerformanceChartData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -214,7 +235,7 @@ export default function AnalyticsPage() {
                       fill="#8884d8"
                       dataKey="revenue"
                     >
-                      {planPerformanceData.map((entry, index) => (
+                      {planPerformanceChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -233,7 +254,9 @@ export default function AnalyticsPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-600">ARR</span>
-                    <span className="text-sm font-medium">$117,600</span>
+                    <span className="text-sm font-medium">
+                      {metrics.arr?.formatted || `$${((metrics.arr?.cents || 0) / 100).toFixed(2)}`}
+                    </span>
                   </div>
                   <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div className="h-full bg-green-500" style={{ width: '85%' }} />
@@ -242,7 +265,9 @@ export default function AnalyticsPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-600">ARPU</span>
-                    <span className="text-sm font-medium">$106.52</span>
+                    <span className="text-sm font-medium">
+                      {metrics.arpu?.formatted || `$${((metrics.arpu?.cents || 0) / 100).toFixed(2)}`}
+                    </span>
                   </div>
                   <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div className="h-full bg-blue-500" style={{ width: '65%' }} />
@@ -251,7 +276,9 @@ export default function AnalyticsPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-600">LTV</span>
-                    <span className="text-sm font-medium">$1,278</span>
+                    <span className="text-sm font-medium">
+                      {metrics.ltv?.formatted || `$${((metrics.ltv?.cents || 0) / 100).toFixed(2)}`}
+                    </span>
                   </div>
                   <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div className="h-full bg-purple-500" style={{ width: '75%' }} />
@@ -271,7 +298,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={customerGrowthData}>
+                <BarChart data={customerGrowthChartData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
                   <XAxis 
                     dataKey="month" 
@@ -303,8 +330,8 @@ export default function AnalyticsPage() {
                 <CardTitle className="text-sm font-medium text-gray-600">Total Customers</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">92</div>
-                <p className="text-xs text-green-600 mt-1">+35 this month</p>
+                <div className="text-2xl font-bold">{metrics.active_customers || 0}</div>
+                <p className="text-xs text-green-600 mt-1">+{customerData?.data?.new_customers_this_month || 0} this month</p>
               </CardContent>
             </Card>
 
@@ -313,8 +340,8 @@ export default function AnalyticsPage() {
                 <CardTitle className="text-sm font-medium text-gray-600">New This Month</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">35</div>
-                <p className="text-xs text-gray-600 mt-1">16% higher than average</p>
+                <div className="text-2xl font-bold">{customerData?.data?.new_customers_this_month || 0}</div>
+                <p className="text-xs text-gray-600 mt-1">Growth trend</p>
               </CardContent>
             </Card>
 
@@ -323,8 +350,8 @@ export default function AnalyticsPage() {
                 <CardTitle className="text-sm font-medium text-gray-600">Churned This Month</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">4</div>
-                <p className="text-xs text-gray-600 mt-1">4.3% churn rate</p>
+                <div className="text-2xl font-bold">{customerData?.data?.churned_customers_this_month || 0}</div>
+                <p className="text-xs text-gray-600 mt-1">{(metrics.churn_rate || 0).toFixed(1)}% churn rate</p>
               </CardContent>
             </Card>
           </div>
@@ -339,7 +366,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {planPerformanceData.map((plan) => (
+                {planPerformanceChartData.map((plan) => (
                   <div key={plan.name} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -358,7 +385,7 @@ export default function AnalyticsPage() {
                       <div 
                         className="h-full transition-all" 
                         style={{ 
-                          width: `${(plan.subscribers / 92) * 100}%`,
+                          width: `${(metrics.active_customers && plan.subscribers) ? (plan.subscribers / (metrics.active_customers || 1)) * 100 : 0}%`,
                           backgroundColor: plan.color
                         }} 
                       />
@@ -379,7 +406,7 @@ export default function AnalyticsPage() {
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
-                      data={planPerformanceData}
+                      data={planPerformanceChartData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -388,7 +415,7 @@ export default function AnalyticsPage() {
                       fill="#8884d8"
                       dataKey="subscribers"
                     >
-                      {planPerformanceData.map((entry, index) => (
+                      {planPerformanceChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -404,8 +431,8 @@ export default function AnalyticsPage() {
                 <CardDescription>Average metrics per plan</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {planPerformanceData.map((plan) => {
-                  const avgRevenue = plan.revenue / plan.subscribers;
+                {planPerformanceChartData.map((plan) => {
+                  const avgRevenue = plan.subscribers > 0 ? plan.revenue / plan.subscribers : 0;
                   return (
                     <div key={plan.name}>
                       <div className="flex items-center justify-between mb-1">
@@ -416,7 +443,7 @@ export default function AnalyticsPage() {
                         <div 
                           className="h-full transition-all" 
                           style={{ 
-                            width: `${(avgRevenue / 200) * 100}%`,
+                            width: `${avgRevenue > 0 ? Math.min((avgRevenue / 200) * 100, 100) : 0}%`,
                             backgroundColor: plan.color
                           }} 
                         />

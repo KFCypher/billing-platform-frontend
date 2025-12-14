@@ -50,13 +50,172 @@ export default function DevelopersPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="quickstart">
+      <Tabs defaultValue="widget">
         <TabsList>
+          <TabsTrigger value="widget">Widget Integration</TabsTrigger>
           <TabsTrigger value="quickstart">Quick Start</TabsTrigger>
           <TabsTrigger value="api-keys">API Keys</TabsTrigger>
           <TabsTrigger value="api-reference">API Reference</TabsTrigger>
           <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
         </TabsList>
+
+        {/* Widget Integration Tab */}
+        <TabsContent value="widget" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Code className="h-5 w-5" />
+                Embeddable Billing Widget
+              </CardTitle>
+              <CardDescription>
+                Add subscription pricing to your website with just a few lines of code
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-3">1. Add the Widget Script</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Add this script tag to your website&apos;s HTML, just before the closing &lt;/body&gt; tag:
+                </p>
+                <div className="bg-gray-900 rounded-lg p-4 relative group">
+                  <pre className="text-green-400 text-sm overflow-x-auto whitespace-pre-wrap">
+{`<script src="${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/billing-widget.js"></script>`}
+                  </pre>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => copyToClipboard(`<script src="${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/billing-widget.js"></script>`, 'Script tag')}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div>
+                <h3 className="font-semibold mb-3">2. Initialize the Widget</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Add this code where you want the pricing plans to appear:
+                </p>
+                <div className="bg-gray-900 rounded-lg p-4 relative group">
+                  <pre className="text-green-400 text-sm overflow-x-auto whitespace-pre-wrap">
+{`<div id="billing-widget"></div>
+
+<script>
+  BillingWidget.init({
+    apiKey: '${apiKeys?.test || 'YOUR_API_KEY'}',
+    containerId: 'billing-widget',
+    environment: 'test', // or 'live'
+    theme: 'light', // or 'dark'
+    onSuccess: function(data) {
+      console.log('Subscription created:', data);
+      // Redirect user to success page
+      window.location.href = '/success';
+    },
+    onError: function(error) {
+      console.error('Error:', error);
+      alert('Failed to create subscription');
+    }
+  });
+</script>`}
+                  </pre>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => copyToClipboard(`<div id="billing-widget"></div>\n\n<script>\n  BillingWidget.init({\n    apiKey: '${apiKeys?.test || 'YOUR_API_KEY'}',\n    containerId: 'billing-widget',\n    environment: 'test',\n    theme: 'light',\n    onSuccess: function(data) {\n      window.location.href = '/success';\n    },\n    onError: function(error) {\n      console.error('Error:', error);\n    }\n  });\n</script>`, 'Widget code')}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div>
+                <h3 className="font-semibold mb-3">3. Configuration Options</h3>
+                <div className="space-y-3">
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <code className="text-sm font-mono">apiKey</code>
+                      <Badge variant="outline">Required</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Your API key (test or live mode)
+                    </p>
+                  </div>
+
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <code className="text-sm font-mono">containerId</code>
+                      <Badge variant="outline">Required</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      ID of the HTML element where the widget will be rendered
+                    </p>
+                  </div>
+
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <code className="text-sm font-mono">environment</code>
+                      <Badge variant="secondary">Optional</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      &apos;test&apos; or &apos;live&apos; (defaults to &apos;test&apos;)
+                    </p>
+                  </div>
+
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <code className="text-sm font-mono">theme</code>
+                      <Badge variant="secondary">Optional</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      &apos;light&apos; or &apos;dark&apos; (defaults to &apos;light&apos;)
+                    </p>
+                  </div>
+
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <code className="text-sm font-mono">onSuccess</code>
+                      <Badge variant="secondary">Optional</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Callback function called when subscription is created successfully
+                    </p>
+                  </div>
+
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <code className="text-sm font-mono">onError</code>
+                      <Badge variant="secondary">Optional</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Callback function called when an error occurs
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <p className="text-sm text-green-800 dark:text-green-200">
+                  <strong>✅ That&apos;s it!</strong> The widget will automatically display all your active subscription plans with working checkout functionality.
+                </p>
+              </div>
+
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                  <strong>💡 Live Demo:</strong> Want to see it in action? The widget file is located at:
+                </p>
+                <code className="text-xs bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                  {typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/billing-widget.js
+                </code>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* Quick Start Tab */}
         <TabsContent value="quickstart" className="space-y-6 mt-6">

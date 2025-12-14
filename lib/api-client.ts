@@ -109,7 +109,7 @@ export const authApi = {
 
 // Stripe Connect methods
 export const stripeApi = {
-  getConnectUrl: () => apiClient.get('/auth/tenants/stripe/connect/'),
+  getConnectUrl: () => apiClient.post('/auth/tenants/stripe/connect/'),
   
   getStatus: () => apiClient.get('/auth/tenants/stripe/status/'),
   
@@ -177,7 +177,8 @@ export const webhookApi = {
   
   deleteConfig: () => apiClient.delete('/auth/tenants/webhooks/config/'),
   
-  test: () => apiClient.post('/auth/tenants/webhooks/test/'),
+  test: (data?: { event_type?: string }) => 
+    apiClient.post('/auth/tenants/webhooks/test/', data || { event_type: 'test.webhook' }),
 };
 
 // Customer methods
@@ -272,6 +273,21 @@ export const momoConfigApi = {
   test: () => apiClient.post('/auth/tenants/momo/test/'),
 };
 
+// Paystack Configuration methods
+export const paystackConfigApi = {
+  get: () => apiClient.get('/auth/tenants/paystack/config/'),
+  
+  configure: (data: {
+    secret_key: string;
+    public_key: string;
+    test_mode: boolean;
+  }) => apiClient.post('/auth/tenants/paystack/config/', data),
+  
+  disable: () => apiClient.delete('/auth/tenants/paystack/config/'),
+  
+  test: () => apiClient.post('/auth/tenants/paystack/test/'),
+};
+
 // Mobile Money Payment methods
 export const momoPaymentApi = {
   initiate: (data: {
@@ -320,49 +336,58 @@ export const analyticsApi = {
 
 // Payments API
 export const paymentsApi = {
-  getAll: (filters?: {
-    customer?: string;
+  // Mobile Money payments
+  initiateMomo: (data: {
+    customer_id: number;
+    plan_id: number;
+    phone_number: string;
+    currency?: string;
+  }) => apiClient.post('/payments/momo/initiate/', data),
+  
+  checkMomoStatus: (paymentId: number) =>
+    apiClient.get(`/payments/momo/${paymentId}/status/`),
+  
+  listMomoPayments: (filters?: {
     status?: string;
     page?: number;
     page_size?: number;
-    start_date?: string;
-    end_date?: string;
-  }) => apiClient.get('/payments/', { params: filters }),
-  
-  getById: (id: string) => apiClient.get(`/payments/${id}/`),
-  
-  refund: (id: string, data?: { amount?: number; reason?: string }) =>
-    apiClient.post(`/payments/${id}/refund/`, data),
+  }) => apiClient.get('/payments/momo/', { params: filters }),
 };
 
 // Customers API  
 export const customersApi = {
   getAll: (filters?: {
     search?: string;
-    status?: string;
-    plan?: string;
+    subscription_status?: string;
+    country?: string;
+    has_subscription?: boolean;
     page?: number;
     page_size?: number;
-  }) => apiClient.get('/customers/', { params: filters }),
+  }) => apiClient.get('/auth/customers/', { params: filters }),
   
-  getById: (id: string) => apiClient.get(`/customers/${id}/`),
+  getById: (id: string) => apiClient.get(`/auth/customers/${id}/`),
   
   create: (data: {
     email: string;
     full_name?: string;
     phone?: string;
-    address?: string;
-    metadata?: Record<string, unknown>;
-  }) => apiClient.post('/customers/', data),
+    country?: string;
+    city?: string;
+    postal_code?: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    metadata_json?: Record<string, unknown>;
+  }) => apiClient.post('/auth/customers/create/', data),
   
   update: (id: string, data: Partial<{
     full_name: string;
     phone: string;
-    address: string;
-    metadata: Record<string, unknown>;
-  }>) => apiClient.patch(`/customers/${id}/`, data),
-  
-  delete: (id: string) => apiClient.delete(`/customers/${id}/`),
+    country: string;
+    city: string;
+    postal_code: string;
+    metadata_json: Record<string, unknown>;
+  }>) => apiClient.patch(`/auth/customers/${id}/update/`, data),
 };
 
 // Subscriptions API
@@ -373,27 +398,26 @@ export const subscriptionsApi = {
     plan?: string;
     page?: number;
     page_size?: number;
-  }) => apiClient.get('/subscriptions/', { params: filters }),
+  }) => apiClient.get('/auth/subscriptions/', { params: filters }),
   
-  getById: (id: string) => apiClient.get(`/subscriptions/${id}/`),
+  getById: (id: string) => apiClient.get(`/auth/subscriptions/${id}/`),
   
   create: (data: {
-    customer: string;
-    plan: string;
+    customer_id: number;
+    plan_id: number;
+    trial_days?: number;
     start_date?: string;
-    trial_end_date?: string;
-  }) => apiClient.post('/subscriptions/', data),
+  }) => apiClient.post('/auth/subscriptions/create/', data),
   
   update: (id: number, data: Partial<{
-    plan: string;
-    status: string;
+    plan_id: number;
     cancel_at_period_end: boolean;
-  }>) => apiClient.patch(`/subscriptions/${id}/`, data),
+  }>) => apiClient.patch(`/auth/subscriptions/${id}/update/`, data),
   
-  cancel: (id: number, data?: { immediate?: boolean }) =>
-    apiClient.post(`/subscriptions/${id}/cancel/`, data),
+  cancel: (id: number, data?: { immediate?: boolean; reason?: string }) =>
+    apiClient.post(`/auth/subscriptions/${id}/cancel/`, data),
   
-  reactivate: (id: number) => apiClient.post(`/subscriptions/${id}/reactivate/`),
+  reactivate: (id: number) => apiClient.post(`/auth/subscriptions/${id}/reactivate/`),
 };
 
 // Webhooks API
@@ -403,17 +427,36 @@ export const webhooksApi = {
     event_type?: string;
     page?: number;
     page_size?: number;
-  }) => apiClient.get('/webhooks/', { params: filters }),
+  }) => apiClient.get('/auth/webhooks/events/', { params: filters }),
   
-  retry: (id: string) => apiClient.post(`/webhooks/${id}/retry/`),
+  getById: (id: string) => apiClient.get(`/auth/webhooks/events/${id}/`),
   
-  getConfig: () => apiClient.get('/webhooks/config/'),
+  retry: (id: string) => apiClient.post(`/auth/webhooks/events/${id}/retry/`),
   
-  updateConfig: (data: { url: string; events: string[]; secret?: string }) =>
-    apiClient.post('/webhooks/config/', data),
+  getEventTypes: () => apiClient.get('/auth/webhooks/event-types/'),
   
-  test: (data: { url: string; event_type: string }) =>
-    apiClient.post('/webhooks/test/', data),
+  getStats: (params?: { start_date?: string; end_date?: string }) =>
+    apiClient.get('/auth/webhooks/stats/', { params }),
+  
+  getConfig: () => apiClient.get('/auth/tenants/webhooks/config/'),
+  
+  updateConfig: (data: { url: string; secret?: string }) =>
+    apiClient.post('/auth/tenants/webhooks/config/', data),
+  
+  deleteConfig: () => apiClient.delete('/auth/tenants/webhooks/config/'),
+  
+  test: (data: { event_type: string }) =>
+    apiClient.post('/auth/tenants/webhooks/test/', data),
+};
+
+// Tenant settings/profile API
+export const tenantApi = {
+  getProfile: () => apiClient.get('/auth/tenants/me/'),
+  
+  getDetails: () => apiClient.get('/auth/tenants/details/'),
+  
+  changePassword: (data: { old_password: string; new_password: string }) =>
+    apiClient.post('/auth/tenants/change-password/', data),
 };
 
 // Export the configured client

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing Widget Example</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 3rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.25rem;
+            margin-bottom: 60px;
+        }
+        .info-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        .info-box h2 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .info-box pre {
+            background: #f7f7f7;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .info-box code {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+        }
+        .widget-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Billing Platform Widget</h1>
+        <p class="subtitle">Embeddable subscription billing for your SaaS</p>
+
+        <div class="info-box">
+            <h2>📦 How to Use This Widget</h2>
+            <p><strong>Step 1:</strong> Get your API key from the Billing Platform dashboard</p>
+            <p><strong>Step 2:</strong> Add the widget script to your HTML:</p>
+            <pre><code>&lt;script src="http://localhost:3000/billing-widget.js"&gt;&lt;/script&gt;</code></pre>
+            
+            <p><strong>Step 3:</strong> Initialize the widget with your configuration:</p>
+            <pre><code>&lt;script&gt;
+  BillingWidget.init({
+    apiKey: 'pk_test_your_api_key_here',  // Replace with your API key
+    container: '#billing-widget',
+    successUrl: 'https://yoursite.com/thank-you',
+    cancelUrl: 'https://yoursite.com/pricing',
+    paymentProvider: 'stripe',  // Options: 'stripe', 'paystack', 'momo'
+    theme: 'light'  // or 'dark'
+  });
+&lt;/script&gt;</code></pre>
+        </div>
+
+        <div class="info-box">
+            <h2>⚙️ Configuration Options</h2>
+            <ul>
+                <li><code>apiKey</code> (required): Your public API key from the dashboard</li>
+                <li><code>container</code> (required): CSS selector for the widget container</li>
+                <li><code>successUrl</code> (required): Where to redirect after successful payment</li>
+                <li><code>cancelUrl</code> (required): Where to redirect if user cancels</li>
+                <li><code>paymentProvider</code> (optional): 'stripe', 'paystack', or 'momo' (default: 'stripe')</li>
+                <li><code>theme</code> (optional): 'light' or 'dark' (default: 'light')</li>
+                <li><code>currency</code> (optional): Display currency (default: 'USD')</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h2>💳 Supported Payment Providers</h2>
+            <ul>
+                <li><strong>Stripe:</strong> Credit cards, Apple Pay, Google Pay globally</li>
+                <li><strong>Paystack:</strong> Cards, Bank transfers, USSD, Mobile Money (Africa)</li>
+                <li><strong>Mobile Money:</strong> MTN, Vodafone, AirtelTigo (Ghana)</li>
+            </ul>
+        </div>
+
+        <!-- Widget will be inserted here -->
+        <div class="widget-container">
+            <div id="billing-widget"></div>
+        </div>
+
+        <div class="info-box" style="margin-top: 40px;">
+            <h2>🔒 Security Notes</h2>
+            <ul>
+                <li>Never expose your <strong>secret API key</strong> in frontend code</li>
+                <li>Only use your <strong>public API key</strong> (starts with <code>pk_</code>)</li>
+                <li>The widget automatically handles PCI compliance through payment providers</li>
+                <li>All checkout sessions expire after 30 minutes</li>
+                <li>Platform fee (15% + $0.50) is automatically calculated</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h2>📚 More Information</h2>
+            <p>For complete API documentation and advanced integration options, visit your dashboard at:</p>
+            <p><strong>Settings → API Keys → Documentation</strong></p>
+        </div>
+    </div>
+
+    <!-- Include the billing widget script -->
+    <script>
+        // Set the API base URL (change in production)
+        window.BILLING_WIDGET_API_URL = 'http://localhost:8000';
+    </script>
+    <script src="http://localhost:3000/billing-widget.js"></script>
+    
+    <!-- Initialize the widget -->
+    <script>
+        BillingWidget.init({
+            apiKey: 'pk_test_your_api_key_here',  // ⚠️ REPLACE THIS WITH YOUR ACTUAL API KEY
+            container: '#billing-widget',
+            successUrl: 'http://localhost:3000/success.html',
+            cancelUrl: 'http://localhost:3000/pricing.html',
+            paymentProvider: 'stripe',  // Change to 'paystack' or 'momo' as needed
+            theme: 'light',
+            currency: 'USD'
+        });
+    </script>
+</body>
+</html>
