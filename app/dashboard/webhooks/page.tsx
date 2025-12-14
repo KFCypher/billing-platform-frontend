@@ -12,6 +12,15 @@ import { webhookApi, webhooksApi } from '@/lib/api-client';
 import { Webhook, CheckCircle, XCircle, Loader2, Copy, Send, Clock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
+interface WebhookEvent {
+  id: number;
+  event_type: string;
+  status: 'sent' | 'failed' | 'pending';
+  created_at: string;
+  response_code?: number;
+  attempts: number;
+}
+
 export default function WebhooksPage() {
   const [webhookUrl, setWebhookUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -297,7 +306,7 @@ export default function WebhooksPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {eventsData.data.results.map((event: any) => (
+              {eventsData.data.results.map((event: WebhookEvent) => (
                 <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">

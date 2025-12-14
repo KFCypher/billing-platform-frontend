@@ -112,11 +112,38 @@
         
         <div>
             <a href="widget-example.html" class="btn">Try Again</a>
-            <a href="#" class="btn btn-secondary" onclick="window.close();">Close</a>
+            <a href="#" class="btn btn-secondary" onclick="handleClose(event)">Close</a>
         </div>
     </div>
 
     <script>
+        // Safe window close handler
+        function handleClose(event) {
+            event.preventDefault();
+            // Try to close if window was opened by script
+            if (window.opener || window.name === 'popup') {
+                window.close();
+                // Check if close failed after a short delay
+                setTimeout(function() {
+                    if (!document.hidden) {
+                        // Close failed, fallback to navigation
+                        if (document.referrer) {
+                            window.location.href = document.referrer;
+                        } else {
+                            window.history.back();
+                        }
+                    }
+                }, 100);
+            } else {
+                // Not a popup, navigate back
+                if (document.referrer) {
+                    window.location.href = document.referrer;
+                } else {
+                    window.history.back();
+                }
+            }
+        }
+        
         // Extract session ID from URL if needed
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('session_id');

@@ -16,7 +16,12 @@ export default function PlansPage() {
 
   const { data: plansResponse, isLoading, refetch } = useQuery({
     queryKey: ['plans'],
-    queryFn: () => planApi.list(),
+    queryFn: async () => {
+      const response = await planApi.list();
+      console.log('Plans API Response:', response);
+      console.log('Response data:', response.data);
+      return response;
+    },
   });
 
   const plans = Array.isArray(plansResponse?.data) 
@@ -24,6 +29,9 @@ export default function PlansPage() {
     : Array.isArray(plansResponse?.data?.results) 
     ? plansResponse.data.results 
     : [];
+  
+  console.log('Plans array:', plans);
+  console.log('Is loading:', isLoading);
 
   const handleDuplicate = async (planId: number, planName: string) => {
     try {
@@ -155,7 +163,7 @@ export default function PlansPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex gap-2">
-                <Link href={`/plans/${plan.id}/edit`} className="flex-1">
+                <Link href={`/dashboard/plans/${plan.id}/edit`} className="flex-1">
                   <Button variant="outline" className="w-full">
                     <Edit className="mr-2 h-4 w-4" />
                     Edit

@@ -17,6 +17,13 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Loader2, CheckCircle, XCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
+interface PaystackConfig {
+  enabled: boolean;
+  has_credentials: boolean;
+  public_key?: string;
+  test_mode?: boolean;
+}
+
 const paystackSchema = z.object({
   secret_key: z.string().min(1, 'Secret key is required'),
   public_key: z.string().min(1, 'Public key is required'),
@@ -30,7 +37,7 @@ export default function PaystackConfigPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
-  const [currentConfig, setCurrentConfig] = useState<any>(null);
+  const [currentConfig, setCurrentConfig] = useState<PaystackConfig | null>(null);
 
   const {
     register,

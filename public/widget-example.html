@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Billing Widget Example</title>
+    <script>
+        // Configuration: Set your base URLs here or via environment variable
+        window.BILLING_CONFIG = {
+            frontendUrl: window.location.origin,  // Auto-detect current origin
+            apiUrl: 'http://localhost:8000'  // Change for production
+        };
+    </script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -67,15 +74,15 @@
             <h2>📦 How to Use This Widget</h2>
             <p><strong>Step 1:</strong> Get your API key from the Billing Platform dashboard</p>
             <p><strong>Step 2:</strong> Add the widget script to your HTML:</p>
-            <pre><code>&lt;script src="http://localhost:3000/billing-widget.js"&gt;&lt;/script&gt;</code></pre>
+            <pre><code>&lt;script src="/billing-widget.js"&gt;&lt;/script&gt;</code></pre>
             
             <p><strong>Step 3:</strong> Initialize the widget with your configuration:</p>
             <pre><code>&lt;script&gt;
   BillingWidget.init({
     apiKey: 'pk_test_your_api_key_here',  // Replace with your API key
     container: '#billing-widget',
-    successUrl: 'https://yoursite.com/thank-you',
-    cancelUrl: 'https://yoursite.com/pricing',
+    successUrl: window.location.origin + '/thank-you',
+    cancelUrl: window.location.origin + '/pricing',
     paymentProvider: 'stripe',  // Options: 'stripe', 'paystack', 'momo'
     theme: 'light'  // or 'dark'
   });
@@ -130,17 +137,17 @@
     <!-- Include the billing widget script -->
     <script>
         // Set the API base URL (change in production)
-        window.BILLING_WIDGET_API_URL = 'http://localhost:8000';
+        window.BILLING_WIDGET_API_URL = window.BILLING_CONFIG.apiUrl;
     </script>
-    <script src="http://localhost:3000/billing-widget.js"></script>
+    <script src="/billing-widget.js"></script>
     
     <!-- Initialize the widget -->
     <script>
         BillingWidget.init({
             apiKey: 'pk_test_your_api_key_here',  // ⚠️ REPLACE THIS WITH YOUR ACTUAL API KEY
             container: '#billing-widget',
-            successUrl: 'http://localhost:3000/success.html',
-            cancelUrl: 'http://localhost:3000/pricing.html',
+            successUrl: window.BILLING_CONFIG.frontendUrl + '/success.html',
+            cancelUrl: window.BILLING_CONFIG.frontendUrl + '/pricing.html',
             paymentProvider: 'stripe',  // Change to 'paystack' or 'momo' as needed
             theme: 'light',
             currency: 'USD'
