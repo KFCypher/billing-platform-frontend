@@ -87,7 +87,7 @@ export default function DashboardPage() {
           <>
             <MetricCard
               title="Monthly Recurring Revenue"
-              value={metrics.mrr?.formatted || `$${((metrics.mrr?.cents || 0) / 100).toFixed(2)}`}
+              value={metrics.mrr?.formatted || `GH₵${((metrics.mrr?.cents || 0) / 100).toFixed(2)}`}
               change={{ value: Number(metrics.growth_rate || 0), isPositive: Number(metrics.growth_rate || 0) >= 0 }}
               icon={DollarSign}
             />
@@ -173,7 +173,7 @@ export default function DashboardPage() {
                     </TableCell>
                     <TableCell>{sub.plan_name}</TableCell>
                     <TableCell>{getStatusBadge(sub.status)}</TableCell>
-                    <TableCell>${(sub.amount_cents / 100).toFixed(2)}</TableCell>
+                    <TableCell>GH₵{(sub.amount_cents / 100).toFixed(2)}</TableCell>
                     <TableCell className="text-sm text-gray-600">
                       {formatDistanceToNow(new Date(sub.created_at), { addSuffix: true })}
                     </TableCell>

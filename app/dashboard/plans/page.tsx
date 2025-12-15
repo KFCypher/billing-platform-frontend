@@ -24,11 +24,20 @@ export default function PlansPage() {
     },
   });
 
-  const plans = Array.isArray(plansResponse?.data) 
-    ? plansResponse.data 
-    : Array.isArray(plansResponse?.data?.results) 
-    ? plansResponse.data.results 
-    : [];
+  //const plans = Array.isArray(plansResponse?.data) 
+    //? plansResponse.data 
+    //: Array.isArray(plansResponse?.data?.results) 
+    //? plansResponse.data.results 
+    //: [];
+
+  const plans = Array.isArray(plansResponse?.data?.plans) 
+  ? plansResponse.data.plans 
+  : Array.isArray(plansResponse?.data?.results) 
+  ? plansResponse.data.results 
+  : Array.isArray(plansResponse?.data) 
+  ? plansResponse.data 
+  : [];
+
   
   console.log('Plans array:', plans);
   console.log('Is loading:', isLoading);

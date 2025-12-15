@@ -134,7 +134,7 @@ export default function NewPlanPage() {
         name: data.name,
         description: data.description,
         price_cents: Math.round(Number(data.price) * 100),
-        currency: 'usd', // Backend expects lowercase
+        currency: 'ghs', // Backend expects lowercase
         billing_interval: data.billing_period === 'monthly' ? 'month' as const : 'year' as const,
         trial_days: data.trial_period_days ? Number(data.trial_period_days) : undefined,
         features_json: data.features?.map((f: { value: string }) => f.value).filter(Boolean) || [],
@@ -310,7 +310,7 @@ export default function NewPlanPage() {
             {/* Pricing */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price">Price (USD) *</Label>
+                <Label htmlFor="price">Price (GHS) *</Label>
                 <Input
                   id="price"
                   type="number"

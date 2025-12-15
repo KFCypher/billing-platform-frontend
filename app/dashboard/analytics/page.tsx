@@ -76,7 +76,7 @@ export default function AnalyticsPage() {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'GHS',
       minimumFractionDigits: 0,
     }).format(value);
   };

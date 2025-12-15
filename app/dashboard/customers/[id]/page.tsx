@@ -168,7 +168,7 @@ export default function CustomerDetailPage() {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'GHS',
     }).format(amount);
   };
 

@@ -10,25 +10,98 @@ import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
 
 export default function DevelopersPage() {
-  const [apiKeys, setApiKeys] = useState<{ live: string; test: string } | null>(null);
+  const [apiKeys, setApiKeys] = useState<{ live: string; test: string; live_secret?: string; test_secret?: string } | null>(null);
   const [showLiveKey, setShowLiveKey] = useState(false);
   const [showTestKey, setShowTestKey] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // In a real app, fetch API keys from backend
-    // For now, get from localStorage if available
-    if (typeof window !== 'undefined') {
-      const tenant = localStorage.getItem('tenant');
-      if (tenant) {
-        // These would come from the registration response
-        const keys = {
-          live: 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxx',
-          test: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx'
+    // Fetch API keys from backend
+    const fetchApiKeys = async () => {
+      try {
+        setLoading(true);
+        
+        // Get tenant ID from localStorage (stored as JSON object)
+        let tenantId: string | null = null;
+        
+        // Try getting from tenant object first
+        const tenantData = localStorage.getItem('tenant');
+        if (tenantData) {
+          try {
+            const tenant = JSON.parse(tenantData);
+            tenantId = tenant.id?.toString();
+          } catch (e) {
+            console.error('Failed to parse tenant data:', e);
+          }
+        }
+        
+        // Fallback to user.tenant_id
+        if (!tenantId) {
+          const userData = localStorage.getItem('user');
+          if (userData) {
+            try {
+              const user = JSON.parse(userData);
+              tenantId = user.tenant_id?.toString();
+            } catch (e) {
+              console.error('Failed to parse user data:', e);
+            }
+          }
+        }
+        
+        if (!tenantId) {
+          setError('No tenant ID found. Please log in again.');
+          setLoading(false);
+          return;
+        }
+
+        console.log('Fetching API keys for tenant:', tenantId);
+
+        const response = await fetch('http://localhost:8000/api/v1/auth/tenants/api-keys/', {
+          headers: {
+            'X-Tenant-ID': tenantId,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch API keys: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('API keys response:', data);
+        
+        // Parse the keys from the response
+        const keysMap: any = {
+          live: '',
+          test: '',
+          live_secret: '',
+          test_secret: ''
         };
-        // Use setTimeout to avoid setState in render
-        setTimeout(() => setApiKeys(keys), 0);
+
+        data.keys.forEach((keyObj: any) => {
+          if (keyObj.type === 'live_public') {
+            keysMap.live = keyObj.key;
+          } else if (keyObj.type === 'test_public') {
+            keysMap.test = keyObj.key;
+          } else if (keyObj.type === 'live_secret') {
+            keysMap.live_secret = keyObj.key;
+          } else if (keyObj.type === 'test_secret') {
+            keysMap.test_secret = keyObj.key;
+          }
+        });
+
+        setApiKeys(keysMap);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching API keys:', err);
+        setError('Failed to load API keys. Please try again.');
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    fetchApiKeys();
   }, []);
 
   const copyToClipboard = (text: string, label: string) => {
@@ -323,71 +396,88 @@ const subscription = await client.subscriptions.create({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Live Key */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">Live API Key</h3>
-                    <Badge variant="default">Production</Badge>
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                  <span className="ml-3 text-gray-600">Loading API keys...</span>
+                </div>
+              ) : error ? (
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                  <p className="text-sm text-red-800 dark:text-red-200">
+                    <strong>Error:</strong> {error}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Live Public Key */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold">Live Public Key</h3>
+                        <Badge variant="default">Production</Badge>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowLiveKey(!showLiveKey)}
+                      >
+                        {showLiveKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    <div className="flex gap-2">
+                      <code className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded text-sm font-mono">
+                        {showLiveKey ? (apiKeys?.live || 'Not available') : maskApiKey(apiKeys?.live || 'pk_live_xxxx')}
+                      </code>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyToClipboard(apiKeys?.live || '', 'Live public key')}
+                        disabled={!apiKeys?.live}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Use this key for widget integration and client-side code in production.
+                    </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowLiveKey(!showLiveKey)}
-                  >
-                    {showLiveKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-                <div className="flex gap-2">
-                  <code className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded text-sm font-mono">
-                    {showLiveKey ? (apiKeys?.live || 'Not available') : maskApiKey(apiKeys?.live || 'pk_live_xxxx')}
-                  </code>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(apiKeys?.live || '', 'Live API key')}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  ⚠️ Keep this key secret. Only use it on your server, never in client-side code.
-                </p>
-              </div>
 
-              <Separator />
+                  <Separator />
 
-              {/* Test Key */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">Test API Key</h3>
-                    <Badge variant="secondary">Development</Badge>
+                  {/* Test Public Key */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold">Test Public Key</h3>
+                        <Badge variant="secondary">Development</Badge>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowTestKey(!showTestKey)}
+                      >
+                        {showTestKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    <div className="flex gap-2">
+                      <code className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded text-sm font-mono">
+                        {showTestKey ? (apiKeys?.test || 'Not available') : maskApiKey(apiKeys?.test || 'pk_test_xxxx')}
+                      </code>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyToClipboard(apiKeys?.test || '', 'Test public key')}
+                        disabled={!apiKeys?.test}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Use this key for development and testing. No real charges will be made.
+                    </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowTestKey(!showTestKey)}
-                  >
-                    {showTestKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-                <div className="flex gap-2">
-                  <code className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded text-sm font-mono">
-                    {showTestKey ? (apiKeys?.test || 'Not available') : maskApiKey(apiKeys?.test || 'pk_test_xxxx')}
-                  </code>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(apiKeys?.test || '', 'Test API key')}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Use this key for development and testing. No real charges will be made.
-                </p>
-              </div>
+                </>
+              )}
 
               <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">

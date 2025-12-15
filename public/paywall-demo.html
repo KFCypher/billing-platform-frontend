@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paywall Example - Premium Content Protection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .login-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .login-section input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 400px;
+            margin-right: 10px;
+        }
+
+        .login-section button {
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .login-section button:hover {
+            background: #0056b3;
+        }
+
+        .user-info {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .content-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .content-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .free-content {
+            background: #f8f9fa;
+        }
+
+        .premium-content {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .pro-content {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+
+        .status-badge.free {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-badge.premium {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .status-badge.pro {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .demo-note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+
+        .demo-note strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Paywall Demo</h1>
+        <p class="subtitle">Protect your premium content with subscription verification</p>
+
+        <div class="demo-note">
+            <strong>Demo Instructions:</strong> Enter your email address to simulate logging in. 
+            The paywall will check if you have an active subscription and show/hide content accordingly.
+        </div>
+
+        <!-- Login Simulation -->
+        <div class="login-section">
+            <h3>Step 1: Enter Your Email</h3>
+            <input type="email" id="userEmail" placeholder="your@email.com" />
+            <button onclick="simulateLogin()">Check Subscription</button>
+            <button onclick="simulateLogout()" style="background: #dc3545; margin-left: 10px;">Logout</button>
+        </div>
+
+        <div id="userInfo" class="user-info"></div>
+
+        <!-- Free Content -->
+        <div class="content-section free-content">
+            <h2>Free Content <span class="status-badge free">Everyone</span></h2>
+            <p>This content is visible to everyone, no subscription required.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        </div>
+
+        <!-- Premium Content (Protected) -->
+        <div class="content-section premium-content" id="premiumContent">
+            <div class="loading">🔄 Checking subscription status...</div>
+        </div>
+
+        <!-- Pro Feature Content (Protected by Feature) -->
+        <div class="content-section pro-content" id="proContent">
+            <div class="loading">🔄 Checking feature access...</div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="content-section" style="background: #f8f9fa; margin-top: 40px;">
+            <h2>How It Works</h2>
+            <ol style="padding-left: 20px; line-height: 2;">
+                <li>User logs in with their email on your website</li>
+                <li>Your website calls <code>BillingPaywall.verifySubscription(email)</code></li>
+                <li>The API checks if the user has an active subscription</li>
+                <li>Protected content is shown or hidden based on subscription status</li>
+            </ol>
+
+            <h3 style="margin-top: 30px;">Implementation Example:</h3>
+            <pre style="background: #2c3e50; color: #ecf0f1; padding: 20px; border-radius: 6px; overflow-x: auto; line-height: 1.8;">
+<code>&lt;!-- 1. Include the paywall script --&gt;
+&lt;script src="http://localhost:3000/paywall.js"&gt;&lt;/script&gt;
+
+&lt;!-- 2. Initialize with your API key --&gt;
+&lt;script&gt;
+    BillingPaywall.init('pk_test_your_api_key_here');
+&lt;/script&gt;
+
+&lt;!-- 3. Protect content --&gt;
+&lt;div id="premium-content" style="display: none;"&gt;
+    Your premium content here...
+&lt;/div&gt;
+
+&lt;script&gt;
+    // Get user email from your auth system
+    const userEmail = getCurrentUserEmail();
+    
+    // Protect the content
+    BillingPaywall.protect('#premium-content', userEmail, {
+        upgradeUrl: '/pricing',
+        upgradeMessage: 'Upgrade to Premium to access this content'
+    });
+&lt;/script&gt;</code></pre>
+        </div>
+    </div>
+
+    <!-- Include the paywall script -->
+    <script src="paywall.js"></script>
+    <script src="billing-widget.js"></script>
+
+    <script>
+        // Initialize the paywall with your API key
+        BillingPaywall.init('pk_test_ibCckxD1xKmbbWbUh2W7dFtDCwIfhZQw');
+
+        function simulateLogin() {
+            const email = document.getElementById('userEmail').value;
+            
+            if (!email) {
+                alert('Please enter your email address');
+                return;
+            }
+
+            // Save email
+            BillingPaywall.saveUserEmail(email);
+
+            // Show user info
+            document.getElementById('userInfo').style.display = 'block';
+            document.getElementById('userInfo').innerHTML = `
+                ✅ Logged in as: <strong>${email}</strong> 
+                <span style="margin-left: 20px; font-size: 12px;">(Checking subscription...)</span>
+            `;
+
+            // Check subscription and protect content
+            checkSubscriptionAndProtect(email);
+        }
+
+        async function checkSubscriptionAndProtect(email) {
+            try {
+                // Protect premium content
+                await BillingPaywall.protect('#premiumContent', email, {
+                    upgradeUrl: 'http://localhost:3000/demo-site.html',
+                    upgradeMessage: 'Subscribe to access premium content',
+                    onUnlock: (subscription) => {
+                        document.getElementById('premiumContent').innerHTML = `
+                            <h2>Premium Content <span class="status-badge premium">Subscribers Only</span></h2>
+                            <p><strong>🎉 Access Granted!</strong></p>
+                            <p>You are subscribed to: <strong>${subscription.plan_name}</strong></p>
+                            <p>Status: <strong>${subscription.status}</strong></p>
+                            <p>This premium content is only visible to active subscribers.</p>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+                        `;
+                        updateUserInfo(email, true, subscription.plan_name);
+                    },
+                    onLock: () => {
+                        updateUserInfo(email, false);
+                    }
+                });
+
+                // Protect pro feature content
+                await BillingPaywall.protectByFeature('#proContent', email, 'advanced_analytics', {
+                    upgradeUrl: 'http://localhost:3000/demo-site.html',
+                    onUnlock: (result) => {
+                        document.getElementById('proContent').innerHTML = `
+                            <h2>Pro Feature Content <span class="status-badge pro">Pro Feature</span></h2>
+                            <p><strong>🚀 Feature Unlocked!</strong></p>
+                            <p>You have access to the "advanced_analytics" feature.</p>
+                            <p>Plan: <strong>${result.plan_name}</strong></p>
+                            <p>This content requires the "advanced_analytics" feature in your subscription.</p>
+                        `;
+                    },
+                    onLock: () => {
+                        document.getElementById('proContent').innerHTML = `
+                            <h2>Pro Feature Content <span class="status-badge pro">Pro Feature</span></h2>
+                            <p>This content requires the "advanced_analytics" feature.</p>
+                        `;
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('userInfo').innerHTML = `
+                    ❌ Error checking subscription: ${error.message}
+                `;
+            }
+        }
+
+        function updateUserInfo(email, hasSubscription, planName = null) {
+            const info = document.getElementById('userInfo');
+            if (hasSubscription) {
+                info.innerHTML = `
+                    ✅ Logged in as: <strong>${email}</strong> 
+                    <span style="margin-left: 20px;">🎉 Active Subscription: <strong>${planName}</strong></span>
+                `;
+            } else {
+                info.innerHTML = `
+                    ⚠️ Logged in as: <strong>${email}</strong> 
+                    <span style="margin-left: 20px;">No active subscription found</span>
+                `;
+            }
+        }
+
+        function simulateLogout() {
+            BillingPaywall.clearUserEmail();
+            document.getElementById('userEmail').value = '';
+            document.getElementById('userInfo').style.display = 'none';
+            
+            // Reset content
+            document.getElementById('premiumContent').innerHTML = '<div class="loading">🔄 Checking subscription status...</div>';
+            document.getElementById('proContent').innerHTML = '<div class="loading">🔄 Checking feature access...</div>';
+        }
+
+        // Auto-login if email is stored
+        window.addEventListener('load', () => {
+            const storedEmail = BillingPaywall.getUserEmail();
+            if (storedEmail) {
+                document.getElementById('userEmail').value = storedEmail;
+                simulateLogin();
+            }
+        });
+    </script>
+</body>
+</html>

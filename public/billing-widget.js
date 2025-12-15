@@ -43,7 +43,7 @@
         successUrl: config.successUrl || window.location.href,
         cancelUrl: config.cancelUrl || window.location.href,
         theme: config.theme || 'light',
-        currency: config.currency || 'USD',
+        currency: config.currency || 'GH₵',
         paymentProvider: config.paymentProvider || 'stripe', // stripe, paystack, momo
       };
 
@@ -194,14 +194,23 @@
       const name = prompt('Enter your name:');
       if (!name) return;
 
+      const button = document.querySelector(`[data-plan-id="${planId}"]`);
+      if (!button) return;
+      
+      const originalText = button.textContent;
+
       try {
         // Show loading state
-        const button = document.querySelector(`[data-plan-id="${planId}"]`);
-        if (!button) return;
-        
-        const originalText = button.textContent;
         button.textContent = 'Processing...';
         button.disabled = true;
+
+        console.log('BillingWidget: Creating checkout session', {
+          planId,
+          email,
+          name,
+          paymentProvider: this.config.paymentProvider,
+          apiKey: this.config.apiKey.substring(0, 10) + '...'
+        });
 
         // Create checkout session
         const response = await fetch(`${API_BASE_URL}/api/v1/widget/checkout-session`, {
@@ -220,24 +229,29 @@
           }),
         });
 
+        console.log('BillingWidget: Response status', response.status);
+
         if (!response.ok) {
-          throw new Error('Failed to create checkout session');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('BillingWidget: Checkout error response', errorData);
+          throw new Error(errorData.error || 'Failed to create checkout session');
         }
 
         const data = await response.json();
+        console.log('BillingWidget: Checkout response', data);
 
         // Redirect to checkout
         if (data.checkout_url) {
+          console.log('BillingWidget: Redirecting to', data.checkout_url);
           window.location.href = data.checkout_url;
         } else {
           throw new Error('No checkout URL returned');
         }
       } catch (error) {
         console.error('BillingWidget: Checkout error', error);
-        alert('Failed to process checkout. Please try again.');
+        alert(`Failed to process checkout: ${error.message}`);
         
         // Restore button state
-        const button = document.querySelector(`[data-plan-id="${planId}"]`);
         button.textContent = originalText;
         button.disabled = false;
       }
