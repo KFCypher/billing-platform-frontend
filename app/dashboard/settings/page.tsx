@@ -78,7 +78,6 @@ export default function SettingsPage() {
       }, 300000);
     } catch (error: unknown) {
       console.error('Stripe Connect error:', error);
-    } catch (error: unknown) {
       let errorMessage = 'Failed to connect Stripe';
       
       // Check for specific error types
@@ -109,18 +108,19 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="stripe">
+      <Tabs defaultValue="paystack">
         <TabsList>
-          <TabsTrigger value="stripe">Stripe Integration</TabsTrigger>
-          <TabsTrigger value="mobile-money">Mobile Money</TabsTrigger>
+          {/* Stripe and MoMo hidden - using Paystack only */}
+          {/* <TabsTrigger value="stripe">Stripe Integration</TabsTrigger> */}
+          {/* <TabsTrigger value="mobile-money">Mobile Money</TabsTrigger> */}
           <TabsTrigger value="paystack">Paystack</TabsTrigger>
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
         </TabsList>
 
-        {/* Stripe Integration Tab */}
-        <TabsContent value="stripe" className="space-y-6 mt-6">
+        {/* Stripe Integration Tab - Hidden */}
+        <TabsContent value="stripe" className="space-y-6 mt-6" style={{display: 'none'}}>
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">

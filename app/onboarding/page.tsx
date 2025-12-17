@@ -44,7 +44,7 @@ export default function OnboardingPage() {
   });
 
   const steps = [
-    { number: 1, title: 'Connect Stripe', description: 'Link your Stripe account' },
+    { number: 1, title: 'Connect Paystack', description: 'Link your Paystack account' },
     { number: 2, title: 'Create First Plan', description: 'Set up your first subscription plan' },
     { number: 3, title: 'Integration Code', description: 'Get your API integration code' },
     { number: 4, title: 'Configure Webhook', description: 'Set up webhook for events' },

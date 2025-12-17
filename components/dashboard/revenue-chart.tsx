@@ -37,7 +37,7 @@ export function RevenueChart({ data = [], height = 300 }: RevenueChartProps) {
             <YAxis 
               className="text-xs"
               stroke="#888888"
-              tickFormatter={(value) => `$${value}`}
+              tickFormatter={(value) => `GH₵${value}`}
             />
             <Tooltip 
               contentStyle={{
@@ -45,7 +45,7 @@ export function RevenueChart({ data = [], height = 300 }: RevenueChartProps) {
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
               }}
-              formatter={(value: number) => [`$${value}`, 'Revenue']}
+              formatter={(value: number) => [`GH₵${value}`, 'Revenue']}
             />
             <Line 
               type="monotone" 

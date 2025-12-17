@@ -226,11 +226,11 @@ export default function DashboardPage() {
                 1
               </div>
               <div className="flex-1">
-                <p className="font-medium">Connect Stripe Account</p>
+                <p className="font-medium">Connect Paystack Account</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Link your Stripe account to start processing payments
+                  Link your Paystack account to start processing payments
                 </p>
-                <Link href="/dashboard/settings?tab=stripe">
+                <Link href="/dashboard/settings?tab=paystack">
                   <Button size="sm" variant="link" className="px-0">
                     Connect now →
                   </Button>

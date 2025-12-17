@@ -255,7 +255,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-600">ARR</span>
                     <span className="text-sm font-medium">
-                      {metrics.arr?.formatted || `$${((metrics.arr?.cents || 0) / 100).toFixed(2)}`}
+                      {metrics.arr?.formatted || `GH₵${((metrics.arr?.cents || 0) / 100).toFixed(2)}`}
                     </span>
                   </div>
                   <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -266,7 +266,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-600">ARPU</span>
                     <span className="text-sm font-medium">
-                      {metrics.arpu?.formatted || `$${((metrics.arpu?.cents || 0) / 100).toFixed(2)}`}
+                      {metrics.arpu?.formatted || `GH₵${((metrics.arpu?.cents || 0) / 100).toFixed(2)}`}
                     </span>
                   </div>
                   <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -277,7 +277,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-600">LTV</span>
                     <span className="text-sm font-medium">
-                      {metrics.ltv?.formatted || `$${((metrics.ltv?.cents || 0) / 100).toFixed(2)}`}
+                      {metrics.ltv?.formatted || `GH₵${((metrics.ltv?.cents || 0) / 100).toFixed(2)}`}
                     </span>
                   </div>
                   <div className="h-2 bg-gray-200 rounded-full overflow-hidden">

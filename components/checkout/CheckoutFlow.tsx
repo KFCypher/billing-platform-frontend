@@ -35,13 +35,13 @@ interface CheckoutFlowProps {
 export default function CheckoutFlow({
   plan,
   customerId,
-  momoEnabled = true,
-  stripeEnabled = true,
+  momoEnabled = false,  // Disabled - using Paystack only
+  stripeEnabled = false,  // Disabled - using Paystack only
   onSuccess,
   onCancel,
 }: CheckoutFlowProps) {
   // const router = useRouter(); // Unused for now
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('paystack');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [countryCode, setCountryCode] = useState('GH');
   const [momoTransactionId, setMomoTransactionId] = useState<string | null>(null);

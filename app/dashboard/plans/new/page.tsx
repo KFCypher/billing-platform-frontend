@@ -65,35 +65,23 @@ export default function NewPlanPage() {
     setIsCheckingProviders(true);
     try {
       console.log('Checking payment providers...');
-      const [stripeResponse, momoResponse, paystackResponse] = await Promise.all([
-        stripeApi.getStatus().catch((err) => {
-          console.error('Stripe check error:', err);
-          return { data: { is_connected: false } };
-        }),
-        momoConfigApi.get().catch((err) => {
-          console.error('MoMo check error:', err);
-          return { data: { enabled: false } };
-        }),
-        paystackConfigApi.get().catch((err) => {
-          console.error('Paystack check error:', err);
-          return { data: { enabled: false } };
-        })
-      ]);
+      // Only check Paystack - Stripe and MoMo are disabled
+      const paystackResponse = await paystackConfigApi.get().catch((err) => {
+        console.error('Paystack check error:', err);
+        return { data: { enabled: false } };
+      });
       
-      console.log('Stripe response:', stripeResponse);
-      console.log('MoMo response:', momoResponse);
       console.log('Paystack response:', paystackResponse);
       
-      const stripeOk = stripeResponse.data?.is_connected === true;
-      const momoOk = momoResponse.data?.enabled === true;
       const paystackOk = paystackResponse.data?.enabled === true;
       
-      console.log('Payment providers:', { stripe: stripeOk, momo: momoOk, paystack: paystackOk });
+      console.log('Payment providers:', { paystack: paystackOk });
       
-      setStripeConnected(stripeOk);
-      setMomoConfigured(momoOk);
+      // Set Stripe and MoMo as false (disabled)
+      setStripeConnected(false);
+      setMomoConfigured(false);
       setPaystackConfigured(paystackOk);
-      setHasPaymentProvider(stripeOk || momoOk || paystackOk);
+      setHasPaymentProvider(paystackOk);
     } catch (error) {
       console.error('Error checking payment providers:', error);
       setStripeConnected(false);
@@ -219,16 +207,14 @@ export default function NewPlanPage() {
           <AlertDescription>
             <div className="space-y-2">
               <p>
-                You need to configure at least one payment provider (Stripe, Mobile Money, or Paystack) before creating plans.{' '}
-                <Link href="/dashboard/settings" className="underline font-medium">
-                  Go to Settings to configure payment providers
+                You need to configure Paystack before creating plans.{' '}
+                <Link href="/dashboard/settings?tab=paystack" className="underline font-medium">
+                  Go to Settings to configure Paystack
                 </Link>
               </p>
               <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                 <strong>Current Status:</strong>
                 <ul className="list-disc list-inside mt-1">
-                  <li>Stripe: {stripeConnected === null ? 'Checking...' : stripeConnected ? '✓ Connected' : '✗ Not connected'}</li>
-                  <li>Mobile Money: {momoConfigured === null ? 'Checking...' : momoConfigured ? '✓ Configured' : '✗ Not configured'}</li>
                   <li>Paystack: {paystackConfigured === null ? 'Checking...' : paystackConfigured ? '✓ Configured' : '✗ Not configured'}</li>
                 </ul>
               </div>
