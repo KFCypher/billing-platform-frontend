@@ -44,19 +44,23 @@ export default function AnalyticsPage() {
   const metrics = overview?.data || {};
   const isLoading = overviewLoading || revenueLoading || customerLoading || planLoading;
   
-  // Transform revenue data for chart
-  const revenueChartData = (revenueData?.data?.time_series || []).map((item: any) => ({
-    month: new Date(item.date).toLocaleDateString('en-US', { month: 'short' }),
-    mrr: (item.mrr_cents || 0) / 100,
-    arr: ((item.mrr_cents || 0) / 100) * 12
-  }));
+  // Transform revenue data for chart - last 30 days only
+  const revenueChartData = (revenueData?.data?.time_series || [])
+    .slice(-30) // Only last 30 days
+    .map((item: { date: string; mrr_cents?: number }) => ({
+      date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      mrr: (item.mrr_cents || 0) / 100,
+      arr: ((item.mrr_cents || 0) / 100) * 12
+    }));
   
-  // Transform customer data for chart
-  const customerGrowthChartData = (customerData?.data?.growth_data || []).map((item: any) => ({
-    month: new Date(item.date).toLocaleDateString('en-US', { month: 'short' }),
-    new: item.new_customers || 0,
-    churned: item.churned_customers || 0
-  }));
+  // Transform customer data for chart - last 30 days only
+  const customerGrowthChartData = (customerData?.data?.growth_data || [])
+    .slice(-30) // Only last 30 days
+    .map((item: { date: string; new_customers?: number; churned_customers?: number }) => ({
+      date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      new: item.new_customers || 0,
+      churned: item.churned_customers || 0
+    }));
   
   // Transform plan data for chart
   const planPerformanceChartData = (planData?.data?.plan_breakdown || []).map((item: { plan_name: string; subscriber_count?: number; mrr_cents?: number }, index: number) => ({
@@ -76,11 +80,7 @@ export default function AnalyticsPage() {
     );
   }
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-GH', {
-      style: 'currency',
-      currency: 'GHS',
-      minimumFractionDigits: 2,
-    }).format(value);
+    return `GH₵${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   return (

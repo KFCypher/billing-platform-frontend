@@ -114,19 +114,20 @@ export default function DashboardPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Revenue Chart */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Revenue Overview</CardTitle>
-            <CardDescription>Your monthly revenue for the last 30 days</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {revenueLoading ? (
-              <Skeleton className="h-[300px] w-full" />
-            ) : (
-              <RevenueChart data={revenueChartData} />
-            )}
-          </CardContent>
-        </Card>
+        <div className="lg:col-span-2">
+          {revenueLoading ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Daily MRR - Last 30 Days</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-[300px] w-full" />
+              </CardContent>
+            </Card>
+          ) : (
+            <RevenueChart data={revenueChartData} />
+          )}
+        </div>
       </div>
 
       {/* Recent Subscriptions */}

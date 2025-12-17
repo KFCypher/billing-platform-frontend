@@ -9,21 +9,33 @@ interface RevenueChartProps {
 }
 
 export function RevenueChart({ data = [], height = 300 }: RevenueChartProps) {
-  // Sample data if none provided
-  const chartData = data.length > 0 ? data : [
-    { date: 'Jan 1', revenue: 1200 },
-    { date: 'Jan 8', revenue: 1800 },
-    { date: 'Jan 15', revenue: 2200 },
-    { date: 'Jan 22', revenue: 2800 },
-    { date: 'Jan 29', revenue: 3200 },
-    { date: 'Feb 5', revenue: 3800 },
-    { date: 'Feb 12', revenue: 4200 },
-  ];
+  // No dummy data - wait for real data
+  const chartData = data;
+  
+  // Format currency consistently
+  const formatCurrency = (value: number) => {
+    return `GH₵${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+  
+  if (chartData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Daily MRR - Last 30 Days</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-[300px] text-gray-500">
+            No revenue data yet. Data will appear once you have active subscriptions.
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Revenue Over Time</CardTitle>
+        <CardTitle>Daily MRR - Last 30 Days</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={height}>
@@ -33,11 +45,13 @@ export function RevenueChart({ data = [], height = 300 }: RevenueChartProps) {
               dataKey="date" 
               className="text-xs"
               stroke="#888888"
+              tick={{ fontSize: 12 }}
             />
             <YAxis 
               className="text-xs"
               stroke="#888888"
-              tickFormatter={(value) => `GH₵${value}`}
+              tickFormatter={formatCurrency}
+              tick={{ fontSize: 12 }}
             />
             <Tooltip 
               contentStyle={{
@@ -45,7 +59,8 @@ export function RevenueChart({ data = [], height = 300 }: RevenueChartProps) {
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
               }}
-              formatter={(value: number) => [`GH₵${value}`, 'Revenue']}
+              formatter={(value: number) => [formatCurrency(value), 'Daily MRR']}
+              labelFormatter={(label) => `Date: ${label}`}
             />
             <Line 
               type="monotone" 

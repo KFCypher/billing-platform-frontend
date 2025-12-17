@@ -27,7 +27,7 @@ type PlanFormData = z.infer<typeof planSchema>;
 export default function OnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-  const [stripeConnected, setStripeConnected] = useState(false);
+  const [paystackConnected, setPaystackConnected] = useState(false);
   const [, setFirstPlanCreated] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedWebhook, setCopiedWebhook] = useState(false);
@@ -50,16 +50,9 @@ export default function OnboardingPage() {
     { number: 4, title: 'Configure Webhook', description: 'Set up webhook for events' },
   ];
 
-  const handleStripeConnect = () => {
-    // In production, this would redirect to Stripe OAuth
-    // const stripeConnectUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=YOUR_STRIPE_CLIENT_ID&scope=read_write`;
-    
-    // Simulate connection for demo
-    setTimeout(() => {
-      setStripeConnected(true);
-      toast.success('Stripe account connected successfully!');
-      setCurrentStep(2);
-    }, 1500);
+  const handlePaystackConnect = () => {
+    // Redirect to Paystack settings
+    router.push('/dashboard/settings?tab=paystack');
   };
 
   const onSubmitPlan = async (data: PlanFormData) => {
@@ -183,29 +176,29 @@ const subscription = await billing.subscriptions.create({
             <CardDescription>{steps[currentStep - 1].description}</CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Step 1: Connect Stripe */}
+            {/* Step 1: Connect Paystack */}
             {currentStep === 1 && (
               <div className="space-y-6">
                 <div className="text-center py-8">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 mb-4">
                     <svg className="w-8 h-8 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/>
+                      <path d="M0 13.7v-3.4l7.7-7.7h3.4L0 13.7zm0 10.3v-3.4l18.3-18.3h3.4L0 24zm8.4 0L24 8.4V12L12 24H8.4z"/>
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">Connect Your Stripe Account</h3>
+                  <h3 className="text-lg font-semibold mb-2">Connect Your Paystack Account</h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                    Link your Stripe account to start accepting payments and managing subscriptions.
+                    Configure your Paystack credentials to start accepting payments in Ghana Cedis (GHS).
                   </p>
                   
-                  {!stripeConnected ? (
-                    <Button onClick={handleStripeConnect} size="lg" className="gap-2">
+                  {!paystackConnected ? (
+                    <Button onClick={handlePaystackConnect} size="lg" className="gap-2">
                       <ExternalLink size={16} />
-                      Connect with Stripe
+                      Configure Paystack
                     </Button>
                   ) : (
                     <div className="flex items-center justify-center gap-2 text-green-600">
                       <CheckCircle2 size={20} />
-                      <span className="font-medium">Stripe Connected</span>
+                      <span className="font-medium">Paystack Connected</span>
                     </div>
                   )}
                 </div>
@@ -213,7 +206,7 @@ const subscription = await billing.subscriptions.create({
                 <div className="flex justify-end">
                   <Button 
                     onClick={() => setCurrentStep(2)} 
-                    disabled={!stripeConnected}
+                    disabled={!paystackConnected}
                     className="gap-2"
                   >
                     Continue <ArrowRight size={16} />
