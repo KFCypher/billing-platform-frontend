@@ -76,20 +76,22 @@ export default function SettingsPage() {
           setIsConnecting(false);
         }
       }, 300000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Stripe Connect error:', error);
-      
+    } catch (error: unknown) {
       let errorMessage = 'Failed to connect Stripe';
       
       // Check for specific error types
-      if (error?.response?.data?.error?.message?.includes('No application matches')) {
+      const apiError = error && typeof error === 'object' && 'response' in error ? error as { response?: { data?: { error?: any; details?: string } } } : null;
+      
+      if (apiError?.response?.data?.error?.message?.includes('No application matches')) {
         errorMessage = 'Stripe Connect not configured correctly. Please check your STRIPE_CONNECT_CLIENT_ID in the backend .env file. It should start with "ca_" and can be found at: Stripe Dashboard → Settings → Connect';
-      } else if (error?.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error?.response?.data?.details) {
-        errorMessage = error.response.data.details;
-      } else if (error?.message) {
-        errorMessage = error.message;
+      } else if (apiError?.response?.data?.error) {
+        errorMessage = apiError.response.data.error;
+      } else if (apiError?.response?.data?.details) {
+        errorMessage = apiError.response.data.details;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = (error as { message: string }).message;
       }
       
       toast.error(errorMessage, { duration: 8000 });

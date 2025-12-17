@@ -1,5 +1,6 @@
 'use client';
 
+import NextImage from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { CreditCard, Smartphone } from 'lucide-react';
@@ -19,10 +20,6 @@ export default function PaymentMethodSelector({
   momoEnabled = true,
   stripeEnabled = true,
 }: PaymentMethodSelectorProps) {
-  const handleChange = (newValue: string) => {
-    onChange(newValue as PaymentMethod);
-  };
-
   // If only one method is enabled, auto-select it
   if (stripeEnabled && !momoEnabled && value !== 'stripe') {
     onChange('stripe');
@@ -84,9 +81,9 @@ export default function PaymentMethodSelector({
                     Pay securely with credit or debit card via Stripe
                   </p>
                   <div className="flex gap-2 mt-2">
-                    <img src="/visa.svg" alt="Visa" className="h-6" />
-                    <img src="/mastercard.svg" alt="Mastercard" className="h-6" />
-                    <img src="/amex.svg" alt="Amex" className="h-6" />
+                    <NextImage src="/visa.svg" alt="Visa" width={24} height={24} className="h-6" />
+                    <NextImage src="/mastercard.svg" alt="Mastercard" width={24} height={24} className="h-6" />
+                    <NextImage src="/amex.svg" alt="Amex" width={24} height={24} className="h-6" />
                   </div>
                 </div>
               </div>

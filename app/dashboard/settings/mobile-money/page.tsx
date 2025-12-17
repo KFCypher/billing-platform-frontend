@@ -166,7 +166,7 @@ export default function MobileMoneySettingsPage() {
         <CardHeader>
           <CardTitle>Configuration</CardTitle>
           <CardDescription>
-            Configure your Mobile Money provider credentials. You can get these from your provider's developer portal.
+            Configure your Mobile Money provider credentials. You can get these from your provider&apos;s developer portal.
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -24,11 +24,7 @@ export default function PlansPage() {
     },
   });
 
-  //const plans = Array.isArray(plansResponse?.data) 
-    //? plansResponse.data 
-    //: Array.isArray(plansResponse?.data?.results) 
-    //? plansResponse.data.results 
-    //: [];
+  
 
   const plans = Array.isArray(plansResponse?.data?.plans) 
   ? plansResponse.data.plans 
@@ -142,7 +138,7 @@ export default function PlansPage() {
                 <div className="space-y-4">
                   <div>
                     <div className="text-3xl font-bold">
-                      ${plan.price}
+                      {plan.currency_symbol || 'GH₵'}{plan.price}
                       <span className="text-base font-normal text-gray-600 dark:text-gray-400">
                         /{plan.billing_period}
                       </span>

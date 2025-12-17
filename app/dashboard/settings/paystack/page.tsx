@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Loader2, CheckCircle, XCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Loader2, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 interface PaystackConfig {
@@ -33,7 +33,7 @@ const paystackSchema = z.object({
 type PaystackFormData = z.infer<typeof paystackSchema>;
 
 export default function PaystackConfigPage() {
-  const router = useRouter();
+  // const router = useRouter(); // Unused for now
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
@@ -56,6 +56,7 @@ export default function PaystackConfigPage() {
 
   useEffect(() => {
     loadCurrentConfig();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadCurrentConfig = async () => {

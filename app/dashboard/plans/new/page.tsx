@@ -144,7 +144,7 @@ export default function NewPlanPage() {
       await planApi.create(payload);
       toast.success('Plan created successfully!');
       router.push('/dashboard/plans');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Plan creation error:', error);
       
       // Extract detailed error message

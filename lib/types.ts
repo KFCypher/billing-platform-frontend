@@ -75,16 +75,17 @@ export interface Plan {
   name: string;
   description: string;
   price_cents: number;
-  price?: number; // For display
+  price?: number; // For display (in major currency unit)
   currency: string;
+  currency_symbol?: string; // Currency symbol (e.g., GH₵, $, €)
   billing_interval: 'month' | 'year';
-  billing_period?: 'monthly' | 'yearly'; // Alternative format
+  billing_period?: 'month' | 'year'; // Alternative format
   trial_days: number;
   trial_period_days?: number; // Alternative format
   stripe_product_id: string;
   stripe_price_id: string;
-  features_json: string[];
-  features?: string[]; // Alternative format
+  features_json: string[] | Record<string, unknown>;
+  features?: string[]; // Frontend-friendly features list
   metadata_json: Record<string, unknown>;
   is_active: boolean;
   is_visible: boolean;

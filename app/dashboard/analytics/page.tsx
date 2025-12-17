@@ -74,10 +74,10 @@ export default function AnalyticsPage() {
     );
   }
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-GH', {
       style: 'currency',
       currency: 'GHS',
-      minimumFractionDigits: 0,
+      minimumFractionDigits: 2,
     }).format(value);
   };
 
@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {metrics.mrr?.formatted || `$${((metrics.mrr?.cents || 0) / 100).toFixed(2)}`}
+              {metrics.mrr?.formatted || `GH₵${((metrics.mrr?.cents || 0) / 100).toFixed(2)}`}
             </div>
             <p className={`text-xs mt-1 flex items-center gap-1 ${(metrics.growth_rate || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {(metrics.growth_rate || 0) >= 0 ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
@@ -235,8 +235,8 @@ export default function AnalyticsPage() {
                       fill="#8884d8"
                       dataKey="revenue"
                     >
-                      {planPerformanceChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      {planPerformanceChartData.map((entry: { plan_name: string; subscriptions: number; revenue: number; fill: string }, index: number) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
                     </Pie>
                     <Tooltip formatter={(value: number) => formatCurrency(value)} />
@@ -366,7 +366,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {planPerformanceChartData.map((plan) => (
+                {planPerformanceChartData.map((plan: { plan_name: string; subscriptions: number; revenue: number; fill: string }) => (
                   <div key={plan.name} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -431,7 +431,7 @@ export default function AnalyticsPage() {
                 <CardDescription>Average metrics per plan</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {planPerformanceChartData.map((plan) => {
+                {planPerformanceChartData.map((plan: { plan_name: string; subscriptions: number; revenue: number; fill: string }) => {
                   const avgRevenue = plan.subscribers > 0 ? plan.revenue / plan.subscribers : 0;
                   return (
                     <div key={plan.name}>

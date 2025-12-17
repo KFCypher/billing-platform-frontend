@@ -40,7 +40,7 @@ export default function CheckoutFlow({
   onSuccess,
   onCancel,
 }: CheckoutFlowProps) {
-  const router = useRouter();
+  // const router = useRouter(); // Unused for now
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [countryCode, setCountryCode] = useState('GH');
@@ -49,8 +49,8 @@ export default function CheckoutFlow({
 
   const createSubscription = useCreateSubscription();
   const initiateMoMo = useInitiateMoMoPayment();
-  const { data: paymentStatus, isLoading: isCheckingStatus } = useMoMoPaymentStatus(
-    momoTransactionId || '',
+  const { data: paymentStatus } = useMoMoPaymentStatus(
+    momoTransactionId ? Number(momoTransactionId) : 0,
     { enabled: !!momoTransactionId, refetchInterval: 3000 }
   );
 
@@ -80,7 +80,8 @@ export default function CheckoutFlow({
       const result = await createSubscription.mutateAsync({
         customer_id: customerId,
         plan_id: plan.id,
-        quantity: 1,
+        success_url: window.location.origin + '/success',
+        cancel_url: window.location.origin + '/checkout',
       });
 
       if (result.checkout_url) {
@@ -122,7 +123,7 @@ export default function CheckoutFlow({
 
   // Handle MoMo payment status changes
   if (momoTransactionId && paymentStatus) {
-    if (paymentStatus.status === 'SUCCESS') {
+    if (paymentStatus?.data?.status === 'succeeded') {
       toast.success('Payment successful!');
       onSuccess?.();
       return (
@@ -151,7 +152,7 @@ export default function CheckoutFlow({
               <div>
                 <h3 className="font-semibold text-red-900">Payment Failed</h3>
                 <p className="text-sm text-red-700">
-                  {paymentStatus.failure_reason || 'The payment could not be processed.'}
+                  {paymentStatus?.data?.error || 'The payment could not be processed.'}
                 </p>
               </div>
             </div>

@@ -37,8 +37,8 @@ export default function DashboardPage() {
   const recentSubs = subscriptions?.results || [];
   
   // Transform revenue data for chart
-  const revenueChartData = (revenueData?.data?.time_series || []).map((item: any) => ({
-    date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+  const revenueChartData = (revenueData?.data?.time_series || []).map((item: { month: string; mrr_cents: number; date?: string }) => ({
+    date: item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : item.month,
     revenue: (item.mrr_cents || 0) / 100
   }));
 
@@ -166,14 +166,14 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentSubs.map((sub: any) => (
+                {recentSubs.map((sub) => (
                   <TableRow key={sub.id}>
                     <TableCell className="font-medium">
-                      {sub.customer_email || 'N/A'}
+                      {sub.customer?.email || 'N/A'}
                     </TableCell>
-                    <TableCell>{sub.plan_name}</TableCell>
+                    <TableCell>{sub.plan?.name || 'N/A'}</TableCell>
                     <TableCell>{getStatusBadge(sub.status)}</TableCell>
-                    <TableCell>GH₵{(sub.amount_cents / 100).toFixed(2)}</TableCell>
+                    <TableCell>GH₵{(sub.plan?.price_cents ? sub.plan.price_cents / 100 : 0).toFixed(2)}</TableCell>
                     <TableCell className="text-sm text-gray-600">
                       {formatDistanceToNow(new Date(sub.created_at), { addSuffix: true })}
                     </TableCell>
