@@ -41,7 +41,7 @@ describe('Dashboard Page', () => {
 
   it('renders dashboard with metrics', async () => {
     // Mock successful data fetch
-    mockedUseQuery.mockImplementation((options: any) => {
+    mockedUseQuery.mockImplementation((options: { queryKey: string[] }) => {
       if (options.queryKey[0] === 'analytics-overview') {
         return {
           data: {
@@ -62,13 +62,13 @@ describe('Dashboard Page', () => {
         isLoading: false,
         error: null,
         isSuccess: true,
-      } as any
-    })
+      };
+    });
 
     render(<Dashboard />, { wrapper })
 
     await waitFor(() => {
-      expect(screen.getByText(/Monthly Recurring Revenue/i)).toBeInTheDocument()
+      expect(screen.getByText(/Monthly Recurring Revenue/i)).toBeTruthy()
     })
   })
 
@@ -78,7 +78,7 @@ describe('Dashboard Page', () => {
       isLoading: true,
       error: null,
       isSuccess: false,
-    } as any)
+    });
 
     render(<Dashboard />, { wrapper })
 
@@ -102,13 +102,13 @@ describe('Dashboard Page', () => {
           isSuccess: true,
         } as any
       }
-      return { data: null, isLoading: false, error: null, isSuccess: true } as any
-    })
+      return { data: null, isLoading: false, error: null, isSuccess: true };
+    });
 
     render(<Dashboard />, { wrapper })
 
     await waitFor(() => {
-      expect(screen.getByText(/GH₵/)).toBeInTheDocument()
+      expect(screen.getByText(/GH₵/)).toBeTruthy()
     })
   })
 })

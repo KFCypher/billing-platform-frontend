@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -101,11 +100,10 @@ export default function CheckoutFlow({
         plan_id: plan.id,
         customer_id: customerId,
         phone_number: phoneNumber,
-        country_code: countryCode,
       });
 
-      if (result.transaction_id) {
-        setMomoTransactionId(result.transaction_id);
+      if (result.data?.transaction_id) {
+        setMomoTransactionId(result.data.transaction_id);
         toast.info('Payment request sent to your phone. Please approve the transaction.');
       }
     } catch (error) {
@@ -123,7 +121,7 @@ export default function CheckoutFlow({
 
   // Handle MoMo payment status changes
   if (momoTransactionId && paymentStatus) {
-    if (paymentStatus?.data?.status === 'succeeded') {
+    if (paymentStatus?.status === 'succeeded') {
       toast.success('Payment successful!');
       onSuccess?.();
       return (
@@ -152,7 +150,7 @@ export default function CheckoutFlow({
               <div>
                 <h3 className="font-semibold text-red-900">Payment Failed</h3>
                 <p className="text-sm text-red-700">
-                  {paymentStatus?.data?.error || 'The payment could not be processed.'}
+                  {paymentStatus?.error || 'The payment could not be processed.'}
                 </p>
               </div>
             </div>

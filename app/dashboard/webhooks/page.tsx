@@ -340,10 +340,10 @@ export default function WebhooksPage() {
                       variant="outline"
                       onClick={async () => {
                         try {
-                          await webhooksApi.retry(event.id);
-                          toast.success('Webhook retry queued');
-                          refetchEvents();
-                        } catch (error) {
+                          await webhooksApi.retry(String(event.id));
+                          toast.success('Webhook retried successfully');
+                          refetch();
+                        } catch {
                           toast.error('Failed to retry webhook');
                         }
                       }}

@@ -6,7 +6,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { planApi, stripeApi, momoConfigApi, paystackConfigApi } from '@/lib/api-client';
+import { planApi, paystackConfigApi } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -138,8 +138,9 @@ export default function NewPlanPage() {
       // Extract detailed error message
       let errorMessage = 'Failed to create plan';
       
-      if (error?.response?.data) {
-        const errorData = error.response.data;
+      if (error && typeof error === 'object' && 'response' in error) {
+        const errorResponse = error as { response?: { data?: { name?: string[]; price?: string[]; [key: string]: unknown } } };
+        const errorData = errorResponse.response?.data;
         
         // Check for specific error messages
         if (errorData.error) {
@@ -163,8 +164,8 @@ export default function NewPlanPage() {
             errorMessage = validationErrors;
           }
         }
-      } else if (error?.message) {
-        errorMessage = error.message;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = (error as { message: string }).message;
       }
       
       toast.error(errorMessage, { duration: 5000 });

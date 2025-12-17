@@ -59,11 +59,13 @@ export default function AnalyticsPage() {
   }));
   
   // Transform plan data for chart
-  const planPerformanceChartData = (planData?.data?.plan_breakdown || []).map((item: any, index: number) => ({
+  const planPerformanceChartData = (planData?.data?.plan_breakdown || []).map((item: { plan_name: string; subscriber_count?: number; mrr_cents?: number }, index: number) => ({
+    plan_name: item.plan_name,
     name: item.plan_name,
     subscribers: item.subscriber_count || 0,
     revenue: (item.mrr_cents || 0) / 100,
-    color: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444'][index % 5]
+    color: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444'][index % 5],
+    fill: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444'][index % 5]
   }));
   
   if (isLoading) {
@@ -366,7 +368,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {planPerformanceChartData.map((plan: { plan_name: string; subscriptions: number; revenue: number; fill: string }) => (
+                {planPerformanceChartData.map((plan) => (
                   <div key={plan.name} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">

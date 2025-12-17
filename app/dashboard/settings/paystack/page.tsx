@@ -27,7 +27,7 @@ interface PaystackConfig {
 const paystackSchema = z.object({
   secret_key: z.string().min(1, 'Secret key is required'),
   public_key: z.string().min(1, 'Public key is required'),
-  test_mode: z.boolean().default(true),
+  test_mode: z.boolean().default(true)
 });
 
 type PaystackFormData = z.infer<typeof paystackSchema>;

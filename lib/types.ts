@@ -230,3 +230,18 @@ export interface SortOptions {
   field: string;
   direction: 'asc' | 'desc';
 }
+
+// Mobile Money Payment Types
+export interface MoMoPaymentInitResponse {
+  transaction_id: string;
+  payment_id: number;
+  status: 'pending' | 'initiated';
+  message?: string;
+}
+
+export interface MoMoPaymentStatusResponse {
+  status: 'pending' | 'succeeded' | 'failed' | 'expired';
+  transaction_id: string;
+  payment_id: number;
+  error?: string;
+}

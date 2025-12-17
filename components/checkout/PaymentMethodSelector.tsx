@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
+import React from 'react';
 
 export type PaymentMethod = 'paystack' | 'stripe' | 'momo';
 
@@ -11,12 +11,10 @@ interface PaymentMethodSelectorProps {
   stripeEnabled?: boolean;
 }
 
-export default function PaymentMethodSelector({
+const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   value,
   onChange,
-  momoEnabled = false,  // Disabled - using Paystack only
-  stripeEnabled = false,  // Disabled - using Paystack only
-}: PaymentMethodSelectorProps) {
+}) => {
   // Auto-select paystack since other methods are disabled
   if (value !== 'paystack') {
     onChange('paystack');
@@ -25,4 +23,6 @@ export default function PaymentMethodSelector({
   // Only Paystack is enabled - payment method selector hidden
   // Payment processing will automatically use Paystack
   return null;
-}
+};
+
+export default PaymentMethodSelector;
