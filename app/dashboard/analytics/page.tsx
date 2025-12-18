@@ -25,15 +25,6 @@ import {
   usePlanAnalytics 
 } from '@/lib/hooks/useAnalytics';
 
-const cohortData = [
-  { cohort: 'Jan 2024', month1: 100, month2: 85, month3: 78, month4: 72, month5: 68, month6: 65 },
-  { cohort: 'Feb 2024', month1: 100, month2: 88, month3: 82, month4: 76, month5: 71 },
-  { cohort: 'Mar 2024', month1: 100, month2: 90, month3: 84, month4: 79 },
-  { cohort: 'Apr 2024', month1: 100, month2: 87, month3: 81 },
-  { cohort: 'May 2024', month1: 100, month2: 92 },
-  { cohort: 'Jun 2024', month1: 100 },
-];
-
 export default function AnalyticsPage() {
   // Fetch real analytics data
   const { data: overview, isLoading: overviewLoading } = useAnalyticsOverview();
@@ -466,44 +457,13 @@ export default function AnalyticsPage() {
               <CardDescription>Customer retention rates by signup cohort</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2 px-3 font-medium">Cohort</th>
-                      <th className="text-center py-2 px-3 font-medium">Month 1</th>
-                      <th className="text-center py-2 px-3 font-medium">Month 2</th>
-                      <th className="text-center py-2 px-3 font-medium">Month 3</th>
-                      <th className="text-center py-2 px-3 font-medium">Month 4</th>
-                      <th className="text-center py-2 px-3 font-medium">Month 5</th>
-                      <th className="text-center py-2 px-3 font-medium">Month 6</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cohortData.map((cohort) => (
-                      <tr key={cohort.cohort} className="border-b">
-                        <td className="py-2 px-3 font-medium">{cohort.cohort}</td>
-                        {[cohort.month1, cohort.month2, cohort.month3, cohort.month4, cohort.month5, cohort.month6].map((value, idx) => {
-                          if (!value) return <td key={idx} className="py-2 px-3 text-center text-gray-400">-</td>;
-                          
-                          const bgColor = 
-                            value >= 90 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                            value >= 80 ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                            value >= 70 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                            'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-                          
-                          return (
-                            <td key={idx} className="py-2 px-3 text-center">
-                              <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${bgColor}`}>
-                                {value}%
-                              </span>
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Users className="h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Cohort Data Yet</h3>
+                <p className="text-gray-600 dark:text-gray-400 max-w-md">
+                  Cohort analysis will appear once you have customers for multiple months. 
+                  This helps track retention patterns over time.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -514,8 +474,8 @@ export default function AnalyticsPage() {
                 <CardTitle className="text-sm font-medium text-gray-600">30-Day Retention</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">88%</div>
-                <p className="text-xs text-green-600 mt-1">+2% from last cohort</p>
+                <div className="text-2xl font-bold">-</div>
+                <p className="text-xs text-gray-500 mt-1">Calculating...</p>
               </CardContent>
             </Card>
 
@@ -524,8 +484,8 @@ export default function AnalyticsPage() {
                 <CardTitle className="text-sm font-medium text-gray-600">90-Day Retention</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">82%</div>
-                <p className="text-xs text-green-600 mt-1">+1% from last cohort</p>
+                <div className="text-2xl font-bold">-</div>
+                <p className="text-xs text-gray-500 mt-1">Calculating...</p>
               </CardContent>
             </Card>
 
@@ -534,8 +494,8 @@ export default function AnalyticsPage() {
                 <CardTitle className="text-sm font-medium text-gray-600">180-Day Retention</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">72%</div>
-                <p className="text-xs text-gray-600 mt-1">Stable</p>
+                <div className="text-2xl font-bold">-</div>
+                <p className="text-xs text-gray-500 mt-1">Calculating...</p>
               </CardContent>
             </Card>
           </div>
