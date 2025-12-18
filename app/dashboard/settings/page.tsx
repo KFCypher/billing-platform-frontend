@@ -20,7 +20,29 @@ export default function SettingsPage() {
     queryFn: () => stripeApi.getStatus(),
   });
 
+  // Check Paystack configuration status
+  const { data: paystackStatus, isLoading: isLoadingPaystack } = useQuery({
+    queryKey: ['paystack-status'],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/tenants/paystack/config/`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.ok) {
+          return await response.json();
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    },
+  });
+
   const isConnected = stripeStatus?.data?.is_connected || false;
+  const isPaystackConfigured = paystackStatus?.enabled || false;
 
   const handleConnectStripe = async () => {
     setIsConnecting(true);
@@ -323,13 +345,30 @@ export default function SettingsPage() {
         <TabsContent value="paystack" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Paystack Payments
-              </CardTitle>
-              <CardDescription>
-                Accept payments via Paystack for African markets
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5" />
+                    Paystack Payments
+                  </CardTitle>
+                  <CardDescription>
+                    Accept payments via Paystack for African markets
+                  </CardDescription>
+                </div>
+                {isLoadingPaystack ? (
+                  <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                ) : isPaystackConfigured ? (
+                  <Badge variant="default" className="bg-green-600">
+                    <CheckCircle className="mr-1 h-3 w-3" />
+                    Configured
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary">
+                    <XCircle className="mr-1 h-3 w-3" />
+                    Not Configured
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -350,12 +389,25 @@ export default function SettingsPage() {
                   <Button 
                     onClick={() => router.push('/dashboard/settings/paystack')}
                     className="w-full sm:w-auto"
+                    variant={isPaystackConfigured ? "outline" : "default"}
                   >
-                    Configure Paystack
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    {isPaystackConfigured ? (
+                      <>
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        View Paystack Configuration
+                      </>
+                    ) : (
+                      <>
+                        Configure Paystack
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </>
+                    )}
                   </Button>
                   <p className="text-sm text-gray-500">
-                    Set up your Paystack API keys to start accepting payments
+                    {isPaystackConfigured 
+                      ? 'Your Paystack integration is active and ready to accept payments'
+                      : 'Set up your Paystack API keys to start accepting payments'
+                    }
                   </p>
                 </div>
               </div>

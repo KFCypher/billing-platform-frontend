@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              "connect-src 'self' " + (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'),
+              "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 ws://localhost:3000 wss://localhost:3000",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'"
