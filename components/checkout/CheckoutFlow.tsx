@@ -102,8 +102,8 @@ export default function CheckoutFlow({
         phone_number: phoneNumber,
       });
 
-      if (result.data?.transaction_id) {
-        setMomoTransactionId(result.data.transaction_id);
+      if (result.transaction_id) {
+        setMomoTransactionId(result.transaction_id);
         toast.info('Payment request sent to your phone. Please approve the transaction.');
       }
     } catch (error) {
@@ -150,7 +150,7 @@ export default function CheckoutFlow({
               <div>
                 <h3 className="font-semibold text-red-900">Payment Failed</h3>
                 <p className="text-sm text-red-700">
-                  {paymentStatus?.error || 'The payment could not be processed.'}
+                  {'The payment could not be processed.'}
                 </p>
               </div>
             </div>

@@ -105,7 +105,7 @@ export default function SettingsPage() {
       // Check for specific error types
       const apiError = error && typeof error === 'object' && 'response' in error ? error as { response?: { data?: { error?: string; details?: string } } } : null;
       
-      if (apiError?.response?.data?.error?.message?.includes('No application matches')) {
+      if (typeof apiError?.response?.data?.error === 'string' && apiError.response.data.error.includes('No application matches')) {
         errorMessage = 'Stripe Connect not configured correctly. Please check your STRIPE_CONNECT_CLIENT_ID in the backend .env file. It should start with "ca_" and can be found at: Stripe Dashboard → Settings → Connect';
       } else if (apiError?.response?.data?.error) {
         errorMessage = apiError.response.data.error;

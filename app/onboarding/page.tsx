@@ -27,7 +27,7 @@ type PlanFormData = z.infer<typeof planSchema>;
 export default function OnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-  const [paystackConnected, setPaystackConnected] = useState(false);
+  const [paystackConnected] = useState(false);
   const [, setFirstPlanCreated] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedWebhook, setCopiedWebhook] = useState(false);
