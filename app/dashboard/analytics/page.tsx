@@ -359,7 +359,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {planPerformanceChartData.map((plan) => (
+                {planPerformanceChartData.map((plan: { name: string; color: string; subscribers: number; revenue: number; maxSubscribers: number }) => (
                   <div key={plan.name} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
