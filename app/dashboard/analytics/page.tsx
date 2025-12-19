@@ -359,7 +359,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {planPerformanceChartData.map((plan: { name: string; color: string; subscribers: number; revenue: number; maxSubscribers: number }) => (
+                {planPerformanceChartData.map((plan: { plan_name: string; name: string; subscribers: number; revenue: number; color: string; fill: string }) => (
                   <div key={plan.name} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -408,7 +408,7 @@ export default function AnalyticsPage() {
                       fill="#8884d8"
                       dataKey="subscribers"
                     >
-                      {planPerformanceChartData.map((entry, index) => (
+                      {planPerformanceChartData.map((entry: { plan_name: string; name: string; subscribers: number; revenue: number; color: string; fill: string }, index: number) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -424,7 +424,7 @@ export default function AnalyticsPage() {
                 <CardDescription>Average metrics per plan</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {planPerformanceChartData.map((plan: { plan_name: string; subscriptions: number; revenue: number; fill: string }) => {
+                {planPerformanceChartData.map((plan: { plan_name: string; name: string; subscribers: number; revenue: number; color: string; fill: string }) => {
                   const avgRevenue = plan.subscribers > 0 ? plan.revenue / plan.subscribers : 0;
                   return (
                     <div key={plan.name}>
