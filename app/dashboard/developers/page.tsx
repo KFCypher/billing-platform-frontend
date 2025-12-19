@@ -72,11 +72,9 @@ export default function DevelopersPage() {
         console.log('API keys response:', data);
         
         // Parse the keys from the response
-        const keysMap: Record<string, string> = {
+        const keysMap: { live: string; test: string; live_secret?: string; test_secret?: string } = {
           live: '',
-          test: '',
-          live_secret: '',
-          test_secret: ''
+          test: ''
         };
 
         data.keys.forEach((keyObj: { type: string; key: string }) => {
