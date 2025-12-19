@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+// Force rebuild - CSP updated to allow full Railway domain
 const nextConfig: NextConfig = {
   /* config options here */
   
