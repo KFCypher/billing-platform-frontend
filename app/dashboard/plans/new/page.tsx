@@ -143,19 +143,19 @@ export default function NewPlanPage() {
         const errorData = errorResponse.response?.data;
         
         // Check for specific error messages
-        if (errorData.error) {
-          errorMessage = errorData.error;
+        if (errorData && 'error' in errorData) {
+          errorMessage = String(errorData.error);
           // Add details if available
-          if (errorData.message) {
+          if ('message' in errorData) {
             errorMessage += `: ${errorData.message}`;
-          } else if (errorData.details) {
+          } else if ('details' in errorData) {
             errorMessage += `. ${errorData.details}`;
           }
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
+        } else if (errorData && 'message' in errorData) {
+          errorMessage = String(errorData.message);
         } else if (typeof errorData === 'string') {
           errorMessage = errorData;
-        } else {
+        } else if (errorData) {
           // Handle validation errors
           const validationErrors = Object.entries(errorData)
             .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
