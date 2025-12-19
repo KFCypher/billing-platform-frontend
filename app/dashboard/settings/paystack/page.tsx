@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -27,7 +26,7 @@ interface PaystackConfig {
 const paystackSchema = z.object({
   secret_key: z.string().min(1, 'Secret key is required'),
   public_key: z.string().min(1, 'Public key is required'),
-  test_mode: z.boolean().default(true)
+  test_mode: z.boolean()
 });
 
 type PaystackFormData = z.infer<typeof paystackSchema>;
@@ -82,7 +81,7 @@ export default function PaystackConfigPage() {
   const onSubmit = async (data: PaystackFormData) => {
     setIsLoading(true);
     try {
-      const response = await paystackConfigApi.configure(data);
+      await paystackConfigApi.configure(data);
       toast.success('Paystack configured successfully!');
       setIsConfigured(true);
       
@@ -96,7 +95,7 @@ export default function PaystackConfigPage() {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem('paystack_configured', Date.now().toString());
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Paystack config error:', error);
       
       let errorMessage = 'Failed to configure Paystack';
@@ -123,9 +122,9 @@ export default function PaystackConfigPage() {
 
     setIsTesting(true);
     try {
-      const response = await paystackConfigApi.test();
+      await paystackConfigApi.test();
       toast.success('Connection test successful!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Test error:', error);
       
       let errorMessage = 'Connection test failed';
@@ -163,7 +162,7 @@ export default function PaystackConfigPage() {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem('paystack_configured', Date.now().toString());
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Disable error:', error);
       toast.error('Failed to disable Paystack');
     }

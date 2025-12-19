@@ -88,7 +88,7 @@ export function PlanCard({
             {features.map((feature, index) => (
               <div key={index} className="flex items-start gap-3">
                 <Check 
-                  className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
+                  className={`h-5 w-5 mt-0.5 shrink-0 ${
                     feature.included 
                       ? 'text-green-600' 
                       : 'text-gray-300 dark:text-gray-600'

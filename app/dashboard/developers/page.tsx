@@ -72,14 +72,14 @@ export default function DevelopersPage() {
         console.log('API keys response:', data);
         
         // Parse the keys from the response
-        const keysMap: any = {
+        const keysMap: Record<string, string> = {
           live: '',
           test: '',
           live_secret: '',
           test_secret: ''
         };
 
-        data.keys.forEach((keyObj: any) => {
+        data.keys.forEach((keyObj: { type: string; key: string }) => {
           if (keyObj.type === 'live_public') {
             keysMap.live = keyObj.key;
           } else if (keyObj.type === 'test_public') {

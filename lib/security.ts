@@ -122,7 +122,7 @@ export function validateApiKey(apiKey: string): boolean {
 /**
  * Sanitize object by removing potentially dangerous properties
  */
-export function sanitizeObject<T extends Record<string, any>>(
+export function sanitizeObject<T extends Record<string, unknown>>(
   obj: T,
   allowedKeys?: string[]
 ): Partial<T> {
