@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              `connect-src 'self' ${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'} ws://localhost:3000 wss://localhost:3000 wss://*.vercel.app`,
+              `connect-src 'self' https://billing-platform-backend-production.up.railway.app ws://localhost:3000 wss://localhost:3000 wss://*.vercel.app`,
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'"
