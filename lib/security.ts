@@ -148,9 +148,9 @@ export function sanitizeObject<T extends Record<string, unknown>>(
       sanitized[key as keyof T] = sanitizeString(value) as T[keyof T];
     } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       // Recursively sanitize nested objects
-      sanitized[key as keyof T] = sanitizeObject(value) as T[keyof T];
+      sanitized[key as keyof T] = sanitizeObject(value as Record<string, unknown>) as T[keyof T];
     } else {
-      sanitized[key as keyof T] = value;
+      sanitized[key as keyof T] = value as T[keyof T];
     }
   }
 
